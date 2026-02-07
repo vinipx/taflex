@@ -35,8 +35,11 @@ jobs:
           distribution: 'corretto'
           cache: gradle
 
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+      - name: Create automation.properties
+        run: cp automation.properties.template automation.properties
+
+      - name: Build project
+        run: ./gradlew compileJava --no-daemon
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
@@ -73,9 +76,6 @@ jobs:
       - name: Secret Detection
         uses: trufflesecurity/trufflehog@main
         with:
-          path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
           extra_args: --debug --only-verified
 
   # Job 4: Gradle Dependency Validation
