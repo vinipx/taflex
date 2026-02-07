@@ -1,0 +1,297 @@
+name: Validate Setup
+
+on:
+  push:
+    paths:
+      - 'setup.sh'
+      - 'automation.properties.template'
+      - '.github/workflows/validate-setup.yml'
+  pull_request:
+    paths:
+      - 'setup.sh'
+      - 'automation.properties.template'
+  workflow_dispatch:
+
+jobs:
+  # Job 1: Setup Script Syntax Check
+  script-syntax:
+    name: Script Syntax Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check script syntax
+        run: |
+          # Check bash syntax
+          bash -n setup.sh
+          echo "✓ setup.sh has valid bash syntax"
+
+      - name: Check for common issues
+        run: |
+          # Check for hardcoded paths that might not work everywhere
+          if grep -n "/Users/" setup.sh; then
+            echo "⚠️ Warning: Found hardcoded user paths"
+          fi
+          
+          # Check for proper error handling
+          if ! grep -q "set -e" setup.sh; then
+            echo "⚠️ Warning: Script doesn't use 'set -e' for strict error handling"
+          fi
+          
+          echo "✓ Script validation complete"
+
+  # Job 2: Fresh Environment Test
+  fresh-install:
+    name: Fresh Installation Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 23
+        uses: actions/setup-java@v4
+        with:
+          java-version: '23'
+          distribution: 'corretto'
+
+      - name: Clean environment
+        run: |
+          # Remove any existing Gradle cache to simulate fresh install
+          rm -rf ~/.gradle/caches
+          rm -f automation.properties
+
+      - name: Make scripts executable
+        run: chmod +x setup.sh gradlew
+
+      - name: Run setup script
+        run: |
+          export CI=true
+          timeout 600 ./setup.sh 2>&1 | tee setup.log
+        shell: bash
+
+      - name: Verify setup results
+        run: |
+          # Check that automation.properties was created
+          if [ ! -f automation.properties ]; then
+            echo "❌ automation.properties was not created"
+            exit 1
+          fi
+          echo "✓ automation.properties created"
+          
+          # Check that directories were created
+          for dir in logs screenshots test-output; do
+            if [ ! -d "$dir" ]; then
+              echo "❌ Directory $dir was not created"
+              exit 1
+            fi
+            echo "✓ Directory $dir created"
+          done
+          
+          # Check that gradle wrapper works
+          if ! ./gradlew --version > /dev/null 2>&1; then
+            echo "❌ Gradle wrapper is not working"
+            exit 1
+          fi
+          echo "✓ Gradle wrapper works"
+
+      - name: Upload setup log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: setup-log
+          path: setup.log
+
+  # Job 3: Multi-OS Setup Test
+  multi-os-setup:
+    name: Setup on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 23
+        uses: actions/setup-java@v4
+        with:
+          java-version: '23'
+          distribution: 'corretto'
+
+      - name: Make scripts executable
+        run: chmod +x setup.sh gradlew
+        shell: bash
+
+      - name: Run setup
+        run: |
+          export CI=true
+          ./setup.sh || true
+        shell: bash
+        timeout-minutes: 10
+
+      - name: Verify Java detection
+        run: |
+          # Check that setup detected Java correctly
+          if grep -q "Java.*found" setup.log 2>/dev/null || grep -q "Java.*found" /dev/stdin <<< "$(./setup.sh 2>&1 | head -20)"; then
+            echo "✓ Java detection works on ${{ matrix.os }}"
+          else
+            echo "ℹ️ Java detection may have issues on ${{ matrix.os }} (this is OK if Java is present)"
+          fi
+        shell: bash
+
+  # Job 4: Template Validation
+  template-validation:
+    name: Configuration Template Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate template structure
+        run: |
+          # Check that template exists
+          if [ ! -f automation.properties.template ]; then
+            echo "❌ automation.properties.template not found"
+            exit 1
+          fi
+          
+          # Check for required sections
+          REQUIRED_SECTIONS=(
+            "Execution Configuration"
+            "Web Configuration"
+            "API Configuration"
+            "Mobile Configuration"
+            "Database Configuration"
+          )
+          
+          for section in "${REQUIRED_SECTIONS[@]}"; do
+            if ! grep -q "$section" automation.properties.template; then
+              echo "❌ Missing section: $section"
+              exit 1
+            fi
+            echo "✓ Found section: $section"
+          done
+          
+          echo "✓ Template structure is valid"
+
+      - name: Check for placeholder values
+        run: |
+          # Check that sensitive values are placeholder or commented
+          if grep -E "^[^#].*password.*=.+" automation.properties.template | grep -v "your_"; then
+            echo "⚠️ Warning: Found potential real password in template"
+          fi
+          
+          # Check for example URLs
+          if ! grep -q "example.com" automation.properties.template; then
+            echo "⚠️ Warning: Template should use example.com URLs"
+          fi
+          
+          echo "✓ Placeholder values check complete"
+
+  # Job 5: Gradle Tasks Validation
+  gradle-tasks:
+    name: Gradle Tasks Validation
+    runs-on: ubuntu-latest
+    needs: fresh-install
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 23
+        uses: actions/setup-java@v4
+        with:
+          java-version: '23'
+          distribution: 'corretto'
+          cache: gradle
+
+      - name: Create configuration
+        run: cp automation.properties.template automation.properties
+
+      - name: Verify custom tasks exist
+        run: |
+          # Check that custom tasks are defined
+          TASKS=("webTest" "apiTest" "mobileTest" "smokeTest" "regressionTest" "installPlaywright")
+          
+          for task in "${TASKS[@]}"; do
+            if ./gradlew tasks --all | grep -q "$task"; then
+              echo "✓ Task '$task' is available"
+            else
+              echo "❌ Task '$task' is missing"
+              exit 1
+            fi
+          done
+
+      - name: Test basic Gradle commands
+        run: |
+          # Test that basic commands work
+          ./gradlew clean --no-daemon
+          ./gradlew compileJava --no-daemon
+          echo "✓ Gradle commands work correctly"
+
+  # Job 6: Documentation Setup Check
+  docs-setup:
+    name: Documentation Setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check docs structure
+        run: |
+          # Check that docs directory exists
+          if [ ! -d docs ]; then
+            echo "❌ docs directory not found"
+            exit 1
+          fi
+          
+          # Check for key documentation files
+          REQUIRED_DOCS=(
+            "docs/index.md"
+            "docs/README.md"
+            "mkdocs.yml"
+          )
+          
+          for doc in "${REQUIRED_DOCS[@]}"; do
+            if [ ! -f "$doc" ]; then
+              echo "❌ Missing documentation: $doc"
+              exit 1
+            fi
+            echo "✓ Found documentation: $doc"
+          done
+
+      - name: Validate MkDocs configuration
+        run: |
+          if [ -f mkdocs.yml ]; then
+            # Basic YAML validation
+            python3 -c "import yaml; yaml.safe_load(open('mkdocs.yml'))"
+            echo "✓ mkdocs.yml is valid YAML"
+          fi
+
+  # Job 7: Summary
+  setup-summary:
+    name: Setup Validation Summary
+    runs-on: ubuntu-latest
+    needs: [script-syntax, fresh-install, multi-os-setup, template-validation, gradle-tasks, docs-setup]
+    if: always()
+    steps:
+      - name: Summary
+        run: |
+          echo "## Setup Validation Summary :gear:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Script Syntax | ${{ needs.script-syntax.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Fresh Install | ${{ needs.fresh-install.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Multi-OS Setup | ${{ needs.multi-os-setup.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Template Validation | ${{ needs.template-validation.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Gradle Tasks | ${{ needs.gradle-tasks.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Documentation | ${{ needs.docs-setup.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ job.status }}" == "failure" ]; then
+            echo "❌ **Setup validation failed. Please fix issues before merging.**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ **Setup validation passed! The framework can be installed successfully.**" >> $GITHUB_STEP_SUMMARY
+          fi

@@ -1,0 +1,28 @@
+# Global code owners
+* @vinipx @maintainers
+
+# Core framework code
+/src/main/java/com/enterprise/taflex/core/ @vinipx @senior-developers
+/src/main/java/com/enterprise/taflex/database/ @vinipx @senior-developers
+
+# Test code
+/src/test/java/ @qa-team @vinipx
+
+# Configuration and build files
+/build.gradle @vinipx @devops-team
+/gradle.properties @vinipx @devops-team
+/setup.sh @vinipx @devops-team
+
+# Documentation
+docs/ @vinipx @documentation-team
+*.md @vinipx @documentation-team
+mkdocs.yml @vinipx @documentation-team
+
+# GitHub Actions
+.github/workflows/ @vinipx @devops-team
+
+# Locators (QA team owns these)
+/src/test/resources/locators/ @qa-team
+
+# Test data
+/src/test/resources/data/ @qa-team
