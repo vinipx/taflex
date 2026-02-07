@@ -1,0 +1,45 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Regression Test Suite" parallel="methods" thread-count="4">
+    
+    <listeners>
+        <listener class-name="com.enterprise.taflex.listeners.TestListener"/>
+        <listener class-name="com.enterprise.taflex.listeners.AnnotationTransformer"/>
+    </listeners>
+    
+    <test name="Web Regression Tests">
+        <parameter name="execution.mode" value="web"/>
+        <groups>
+            <run>
+                <include name="regression"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="com.enterprise.taflex.tests.web"/>
+        </packages>
+    </test>
+    
+    <test name="API Regression Tests">
+        <parameter name="execution.mode" value="api"/>
+        <groups>
+            <run>
+                <include name="regression"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="com.enterprise.taflex.tests.api"/>
+        </packages>
+    </test>
+    
+    <test name="Mobile Regression Tests">
+        <parameter name="execution.mode" value="mobile"/>
+        <groups>
+            <run>
+                <include name="regression"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="com.enterprise.taflex.tests.mobile"/>
+        </packages>
+    </test>
+    
+</suite>

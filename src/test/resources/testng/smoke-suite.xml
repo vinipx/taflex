@@ -1,0 +1,33 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="Smoke Test Suite" parallel="false">
+    
+    <listeners>
+        <listener class-name="com.enterprise.taflex.listeners.TestListener"/>
+        <listener class-name="com.enterprise.taflex.listeners.AnnotationTransformer"/>
+    </listeners>
+    
+    <test name="Web Smoke Tests">
+        <parameter name="execution.mode" value="web"/>
+        <groups>
+            <run>
+                <include name="smoke"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="com.enterprise.taflex.tests.web"/>
+        </packages>
+    </test>
+    
+    <test name="API Smoke Tests">
+        <parameter name="execution.mode" value="api"/>
+        <groups>
+            <run>
+                <include name="smoke"/>
+            </run>
+        </groups>
+        <packages>
+            <package name="com.enterprise.taflex.tests.api"/>
+        </packages>
+    </test>
+    
+</suite>
