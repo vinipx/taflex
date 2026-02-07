@@ -48,7 +48,7 @@ print_info "Detected OS: $OS"
 echo ""
 
 # ==========================================
-# 1. Check Java Version (23+)
+# 1. Check Java Version (21+)
 # ==========================================
 echo "Checking Java installation..."
 
@@ -77,16 +77,16 @@ fi
 # If not found, check common locations
 if [ -z "$JAVA_CMD" ]; then
     for java_path in \
-        "/Users/$(whoami)/Library/Java/JavaVirtualMachines/corretto-23*/Contents/Home/bin/java" \
-        "/Users/$(whoami)/Library/Java/JavaVirtualMachines/openjdk-23*/Contents/Home/bin/java" \
-        "/Library/Java/JavaVirtualMachines/jdk-23*/Contents/Home/bin/java" \
-        "/usr/lib/jvm/java-23*/bin/java"
+        "/Users/$(whoami)/Library/Java/JavaVirtualMachines/corretto-21*/Contents/Home/bin/java" \
+        "/Users/$(whoami)/Library/Java/JavaVirtualMachines/openjdk-21*/Contents/Home/bin/java" \
+        "/Library/Java/JavaVirtualMachines/jdk-21*/Contents/Home/bin/java" \
+        "/usr/lib/jvm/java-21*/bin/java"
     do
         for found_java in $java_path; do
             if [ -x "$found_java" ]; then
                 JAVA_VERSION=$(get_java_version "$found_java")
                 JAVA_MAJOR=$(echo "$JAVA_VERSION" | cut -d'.' -f1)
-                if [ "$JAVA_MAJOR" -ge 23 ]; then
+                if [ "$JAVA_MAJOR" -ge 21 ]; then
                     JAVA_CMD="$found_java"
                     break 2
                 fi
@@ -100,7 +100,7 @@ if [ -z "$JAVA_CMD" ]; then
     if command -v java &> /dev/null; then
         JAVA_VERSION=$(get_java_version "java")
         JAVA_MAJOR=$(echo "$JAVA_VERSION" | cut -d'.' -f1)
-        if [ "$JAVA_MAJOR" -ge 23 ]; then
+        if [ "$JAVA_MAJOR" -ge 21 ]; then
             JAVA_CMD="java"
         fi
     fi
@@ -108,7 +108,7 @@ fi
 
 if [ -n "$JAVA_CMD" ]; then
     JAVA_VERSION=$(get_java_version "$JAVA_CMD")
-    print_status "Java $JAVA_VERSION found (>= 23)"
+    print_status "Java $JAVA_VERSION found (>= 21)"
     print_info "Using: $JAVA_CMD"
     
     # Export JAVA_HOME if not already set
@@ -117,10 +117,10 @@ if [ -n "$JAVA_CMD" ]; then
         print_info "JAVA_HOME set to: $JAVA_HOME"
     fi
 else
-    print_error "Java 23 or higher not found"
-    print_info "Please install Java 23 or higher: https://adoptium.net/"
+    print_error "Java 21 or higher not found"
+    print_info "Please install Java 21 or higher: https://adoptium.net/"
     print_info "Detected Java installations:"
-    /usr/libexec/java_home -V 2>&1 | grep -E "(23|24|25)" || echo "  None found"
+    /usr/libexec/java_home -V 2>&1 | grep -E "(21|23|24|25)" || echo "  None found"
     exit 1
 fi
 

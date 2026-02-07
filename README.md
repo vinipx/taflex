@@ -1,6 +1,6 @@
 # TAFLEX - Unified Test Automation Framework
 
-[![Java Version](https://img.shields.io/badge/Java-23%2B-blue.svg)](https://openjdk.org/)
+[![Java Version](https://img.shields.io/badge/Java-21%2B-blue.svg)](https://openjdk.org/)
 [![Gradle](https://img.shields.io/badge/Gradle-8.5-green.svg)](https://gradle.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-orange.svg)](LICENSE)
 
@@ -11,7 +11,7 @@ A production-ready, enterprise-grade unified test automation framework supportin
 - **Unified Architecture**: Single codebase for Web, API, and Mobile testing
 - **Strategy Pattern**: Runtime driver resolution based on configuration
 - **Externalized Locators**: All selectors in `.properties` files, decoupled from code
-- **Java 23+**: Modern Java with latest features
+- **Java 21+**: Modern Java with latest LTS features
 - **TestNG**: Mature test runner with parallel execution support
 - **ReportPortal**: Native integration for centralized reporting
 - **Database Support**: HikariCP connection pooling with JDBC wrapper
@@ -47,7 +47,7 @@ A production-ready, enterprise-grade unified test automation framework supportin
 
 ### Prerequisites
 
-- **Java 23+** - [Download here](https://adoptium.net/)
+- **Java 21+** - [Download here](https://adoptium.net/)
 - **Gradle 8.5+** - Or use included wrapper
 - **Git** - For version control
 
