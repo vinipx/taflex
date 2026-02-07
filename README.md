@@ -3,6 +3,7 @@
 [![Java Version](https://img.shields.io/badge/Java-21%2B-blue.svg)](https://openjdk.org/)
 [![Gradle](https://img.shields.io/badge/Gradle-8.5-green.svg)](https://gradle.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-orange.svg)](LICENSE)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-vinipx/taflex-blue.svg)](https://github.com/vinipx/taflex)
 
 A production-ready, enterprise-grade unified test automation framework supporting **Web** (Playwright), **API** (Apache HttpClient), and **Mobile** (Appium) testing with externalized locators and configuration.
 
@@ -55,7 +56,7 @@ A production-ready, enterprise-grade unified test automation framework supportin
 
 1. **Clone the repository**:
 ```bash
-git clone <repository-url>
+git clone https://github.com/vinipx/taflex.git
 cd taflex
 ```
 
@@ -142,9 +143,9 @@ mobile.app.path=/path/to/app.apk
 ### Web Test Example
 
 ```java
-package com.enterprise.taflex.tests.web;
+package io.github.vinipx.taflex.tests.web;
 
-import com.enterprise.taflex.base.BaseTest;
+import io.github.vinipx.taflex.base.BaseTest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -169,10 +170,10 @@ public class LoginTests extends BaseTest {
 ### API Test Example
 
 ```java
-package com.enterprise.taflex.tests.api;
+package io.github.vinipx.taflex.tests.api;
 
-import com.enterprise.taflex.base.BaseTest;
-import com.enterprise.taflex.core.drivers.strategies.ApiDriverStrategy;
+import io.github.vinipx.taflex.base.BaseTest;
+import io.github.vinipx.taflex.core.drivers.strategies.ApiDriverStrategy;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

@@ -171,7 +171,7 @@ After tests complete, check:
 
     ---
 
-    Check out sample tests in `src/test/java/com/enterprise/taflex/tests/`.
+    Check out sample tests in `src/test/java/io.github.vinipx.taflex/tests/`.
 
 -   :material-school:{ .lg .middle } **Understand Architecture**
 

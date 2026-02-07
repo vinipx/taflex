@@ -2,8 +2,8 @@
 <suite name="Web Test Suite" parallel="methods" thread-count="4">
     
     <listeners>
-        <listener class-name="com.enterprise.taflex.listeners.TestListener"/>
-        <listener class-name="com.enterprise.taflex.listeners.AnnotationTransformer"/>
+        <listener class-name="io.github.vinipx.taflex.listeners.TestListener"/>
+        <listener class-name="io.github.vinipx.taflex.listeners.AnnotationTransformer"/>
         <!-- Report Portal Listener (uncomment when configured) -->
         <!-- <listener class-name="com.epam.reportportal.testng.ReportPortalTestNGListener"/> -->
     </listeners>
@@ -11,8 +11,8 @@
     <test name="Web Tests">
         <parameter name="execution.mode" value="web"/>
         <classes>
-            <class name="com.enterprise.taflex.tests.web.LoginTests"/>
-            <class name="com.enterprise.taflex.tests.web.DashboardTests"/>
+            <class name="io.github.vinipx.taflex.tests.web.LoginTests"/>
+            <class name="io.github.vinipx.taflex.tests.web.DashboardTests"/>
         </classes>
     </test>
     

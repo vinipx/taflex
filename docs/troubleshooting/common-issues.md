@@ -267,7 +267,7 @@ error: cannot find symbol: class AutomationDriver
 
 1. Check imports:
    ```java
-   import com.enterprise.taflex.core.drivers.AutomationDriver;
+   import io.github.vinipx.taflex.core.drivers.AutomationDriver;
    ```
 
 2. Rebuild project:

@@ -2,8 +2,8 @@
 <suite name="Mobile Test Suite" parallel="methods" thread-count="2">
     
     <listeners>
-        <listener class-name="com.enterprise.taflex.listeners.TestListener"/>
-        <listener class-name="com.enterprise.taflex.listeners.AnnotationTransformer"/>
+        <listener class-name="io.github.vinipx.taflex.listeners.TestListener"/>
+        <listener class-name="io.github.vinipx.taflex.listeners.AnnotationTransformer"/>
         <!-- Report Portal Listener (uncomment when configured) -->
         <!-- <listener class-name="com.epam.reportportal.testng.ReportPortalTestNGListener"/> -->
     </listeners>
@@ -11,8 +11,8 @@
     <test name="Mobile Tests">
         <parameter name="execution.mode" value="mobile"/>
         <classes>
-            <class name="com.enterprise.taflex.tests.mobile.MobileLoginTests"/>
-            <class name="com.enterprise.taflex.tests.mobile.MobileNavigationTests"/>
+            <class name="io.github.vinipx.taflex.tests.mobile.MobileLoginTests"/>
+            <class name="io.github.vinipx.taflex.tests.mobile.MobileNavigationTests"/>
         </classes>
     </test>
     

@@ -3,7 +3,7 @@ plugins {
     id 'idea'
 }
 
-group = 'com.enterprise'
+group = 'io.github.vinipx'
 version = '1.0.0-SNAPSHOT'
 
 java {

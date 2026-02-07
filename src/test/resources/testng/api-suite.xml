@@ -2,8 +2,8 @@
 <suite name="API Test Suite" parallel="methods" thread-count="4">
     
     <listeners>
-        <listener class-name="com.enterprise.taflex.listeners.TestListener"/>
-        <listener class-name="com.enterprise.taflex.listeners.AnnotationTransformer"/>
+        <listener class-name="io.github.vinipx.taflex.listeners.TestListener"/>
+        <listener class-name="io.github.vinipx.taflex.listeners.AnnotationTransformer"/>
         <!-- Report Portal Listener (uncomment when configured) -->
         <!-- <listener class-name="com.epam.reportportal.testng.ReportPortalTestNGListener"/> -->
     </listeners>
@@ -11,8 +11,8 @@
     <test name="API Tests">
         <parameter name="execution.mode" value="api"/>
         <classes>
-            <class name="com.enterprise.taflex.tests.api.UserApiTests"/>
-            <class name="com.enterprise.taflex.tests.api.OrderApiTests"/>
+            <class name="io.github.vinipx.taflex.tests.api.UserApiTests"/>
+            <class name="io.github.vinipx.taflex.tests.api.OrderApiTests"/>
         </classes>
     </test>
     

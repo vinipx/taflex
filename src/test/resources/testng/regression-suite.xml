@@ -2,8 +2,8 @@
 <suite name="Regression Test Suite" parallel="methods" thread-count="4">
     
     <listeners>
-        <listener class-name="com.enterprise.taflex.listeners.TestListener"/>
-        <listener class-name="com.enterprise.taflex.listeners.AnnotationTransformer"/>
+        <listener class-name="io.github.vinipx.taflex.listeners.TestListener"/>
+        <listener class-name="io.github.vinipx.taflex.listeners.AnnotationTransformer"/>
     </listeners>
     
     <test name="Web Regression Tests">
@@ -14,7 +14,7 @@
             </run>
         </groups>
         <packages>
-            <package name="com.enterprise.taflex.tests.web"/>
+            <package name="io.github.vinipx.taflex.tests.web"/>
         </packages>
     </test>
     
@@ -26,7 +26,7 @@
             </run>
         </groups>
         <packages>
-            <package name="com.enterprise.taflex.tests.api"/>
+            <package name="io.github.vinipx.taflex.tests.api"/>
         </packages>
     </test>
     
@@ -38,7 +38,7 @@
             </run>
         </groups>
         <packages>
-            <package name="com.enterprise.taflex.tests.mobile"/>
+            <package name="io.github.vinipx.taflex.tests.mobile"/>
         </packages>
     </test>
     

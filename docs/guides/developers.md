@@ -79,7 +79,7 @@ idea .
         <emptyLine />
         <package name="" withSubpackages="true" static="false" />
         <emptyLine />
-        <package name="com.enterprise" withSubpackages="true" static="false" />
+        <package name="io.github.vinipx" withSubpackages="true" static="false" />
       </value>
     </option>
   </JavaCodeStyleSettings>
@@ -121,9 +121,9 @@ taflex/
 ### Test Class Structure
 
 ```java
-package com.enterprise.taflex.tests.web;
+package io.github.vinipx.taflex.tests.web;
 
-import com.enterprise.taflex.base.BaseTest;
+import io.github.vinipx.taflex.base.BaseTest;
 import org.testng.annotations.Test;
 import static org.assertj.core.api.Assertions.*;
 
@@ -240,10 +240,10 @@ public void shouldLoginWithPageObject() {
 ### Creating a Custom Driver Strategy
 
 ```java
-package com.enterprise.taflex.core.drivers.strategies;
+package io.github.vinipx.taflex.core.drivers.strategies;
 
-import com.enterprise.taflex.core.drivers.AutomationDriver;
-import com.enterprise.taflex.core.drivers.elements.Element;
+import io.github.vinipx.taflex.core.drivers.AutomationDriver;
+import io.github.vinipx.taflex.core.drivers.elements.Element;
 
 /**
  * Custom driver for desktop application testing using WinAppDriver.
@@ -294,7 +294,7 @@ public static AutomationDriver getDriver(String mode) {
 ### Creating Custom Test Listeners
 
 ```java
-package com.enterprise.taflex.listeners;
+package io.github.vinipx.taflex.listeners;
 
 import org.testng.ITestResult;
 import org.testng.TestListenerAdapter;
@@ -324,7 +324,7 @@ Add to `testng.xml`:
 
 ```xml
 <listeners>
-    <listener class-name="com.enterprise.taflex.listeners.SlackNotificationListener"/>
+    <listener class-name="io.github.vinipx.taflex.listeners.SlackNotificationListener"/>
 </listeners>
 ```
 
