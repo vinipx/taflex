@@ -372,12 +372,6 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 - [Appium](http://appium.io/)
 - [ReportPortal](https://reportportal.io/)
 
-## 📞 Support
-
-- **Slack**: #test-automation-framework
-- **Email**: automation-team@company.com
-- **Issues**: [GitHub Issues](https://github.com/yourorg/taflex/issues)
-
 ---
 
 **Happy Testing! 🚀**
