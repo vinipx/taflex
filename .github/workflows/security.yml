@@ -29,20 +29,17 @@ jobs:
           distribution: 'corretto'
           cache: gradle
 
+      - name: Create automation.properties
+        run: cp automation.properties.template automation.properties
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
           languages: java
           queries: security-extended,security-and-quality
-          build-mode: manual
 
-      - name: Create automation.properties
-        run: cp automation.properties.template automation.properties
-
-      - name: Build project for CodeQL
-        run: |
-          export CODEQL_EXTRACTOR_JAVA_ROOT="$CODEQL_EXTRACTOR_JAVA_ROOT"
-          ./gradlew compileJava --no-daemon --info
+      - name: Build project
+        run: ./gradlew clean compileJava --no-daemon
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
