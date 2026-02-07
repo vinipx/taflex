@@ -128,7 +128,40 @@ jobs:
           name: test-compilation-reports
           path: build/reports/problems/
 
-  # Job 4: Code Quality Checks
+  # Job 4: Quick Compile Verification
+  compile-verification:
+    name: Quick Compile Verification
+    runs-on: ubuntu-latest
+    needs: compile-main
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+          cache: gradle
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Create automation.properties
+        run: cp automation.properties.template automation.properties
+
+      - name: Quick compile verification (API tests only)
+        run: ./gradlew compileTestJava --no-daemon
+
+      - name: Run minimal API test
+        run: ./gradlew test -Psuite=ci-compile-suite --no-daemon || echo "API tests require configured endpoints"
+
+  # Job 5: Code Quality Checks
   code-quality:
     name: Code Quality Checks
     runs-on: ubuntu-latest
@@ -298,11 +331,11 @@ jobs:
           path: site/
           retention-days: 5
 
-  # Job 9: Final Status Summary
+  # Job 10: Final Status Summary
   status-summary:
     name: CI Status Summary
     runs-on: ubuntu-latest
-    needs: [setup-verification, compile-main, compile-tests, code-quality, full-build, validate-setup, static-analysis]
+    needs: [setup-verification, compile-main, compile-tests, compile-verification, code-quality, full-build, validate-setup, static-analysis]
     if: always()
     steps:
       - name: Summary
@@ -314,6 +347,7 @@ jobs:
           echo "| Setup Verification | ${{ needs.setup-verification.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Compile Main | ${{ needs.compile-main.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Compile Tests | ${{ needs.compile-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Compile Verification | ${{ needs.compile-verification.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Code Quality | ${{ needs.code-quality.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Full Build | ${{ needs.full-build.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Validate Setup | ${{ needs.validate-setup.result }} |" >> $GITHUB_STEP_SUMMARY

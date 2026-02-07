@@ -108,6 +108,21 @@ tasks.register('installPlaywright', JavaExec) {
     args 'install'
 }
 
+// Build verification task - compiles code without running tests
+tasks.register('verifyBuild') {
+    group = 'build'
+    description = 'Verify build by compiling main and test sources without running tests'
+    dependsOn classes
+    dependsOn testClasses
+}
+
+// CI build task - runs compilation verification only
+tasks.register('ciBuild') {
+    group = 'build'
+    description = 'CI build - compile sources without running browser tests'
+    dependsOn verifyBuild
+}
+
 tasks.register('webTest', Test) {
     group = 'verification'
     description = 'Run Web tests'
@@ -139,7 +154,6 @@ tasks.register('regressionTest', Test) {
 }
 
 compileTestJava {
-    dependsOn installPlaywright
 }
 
 sourceSets {

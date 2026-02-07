@@ -1,0 +1,11 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="CI Compile Verification" parallel="false">
+
+    <test name="API Compile Check">
+        <parameter name="execution.mode" value="api"/>
+        <packages>
+            <package name="io.github.vinipx.taflex.tests.api"/>
+        </packages>
+    </test>
+
+</suite>
