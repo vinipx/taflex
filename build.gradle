@@ -1,0 +1,169 @@
+plugins {
+    id 'java'
+    id 'idea'
+}
+
+group = 'com.enterprise'
+version = '1.0.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(23)
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+ext {
+    testngVersion = '7.8.0'
+    playwrightVersion = '1.41.0'
+    appiumVersion = '9.0.0'
+    httpClientVersion = '4.5.14'
+    hikariCpVersion = '5.1.0'
+    reportPortalVersion = '5.3.1'
+    slf4jVersion = '2.0.9'
+    logbackVersion = '1.4.14'
+    jacksonVersion = '2.16.0'
+    assertjVersion = '3.24.2'
+    commonsIoVersion = '2.15.1'
+    commonsCsvVersion = '1.10.0'
+    grpcVersion = '1.60.0'
+}
+
+dependencies {
+    // TestNG - test scope only
+    testImplementation "org.testng:testng:$testngVersion"
+    
+    // Microsoft Playwright
+    implementation "com.microsoft.playwright:playwright:$playwrightVersion"
+    
+    // Appium
+    implementation "io.appium:java-client:$appiumVersion"
+    
+    // Apache HttpClient
+    implementation "org.apache.httpcomponents:httpclient:$httpClientVersion"
+    
+    // JDBC Connection Pooling
+    implementation "com.zaxxer:HikariCP:$hikariCpVersion"
+    
+    // Report Portal - test scope only
+    testImplementation "com.epam.reportportal:agent-java-testng:$reportPortalVersion"
+    testImplementation 'com.epam.reportportal:logger-java-logback:5.1.6'
+    
+    // JSON Processing
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
+    
+    // Logging
+    implementation "org.slf4j:slf4j-api:$slf4jVersion"
+    implementation "ch.qos.logback:logback-classic:$logbackVersion"
+    
+    // Assertions - test scope only
+    testImplementation "org.assertj:assertj-core:$assertjVersion"
+    
+    // Utilities
+    implementation "commons-io:commons-io:$commonsIoVersion"
+    implementation "org.apache.commons:commons-csv:$commonsCsvVersion"
+    
+    // Database Drivers
+    runtimeOnly 'org.postgresql:postgresql:42.7.1'
+    runtimeOnly 'com.mysql:mysql-connector-j:8.2.0'
+    
+    // gRPC (Optional)
+    implementation "io.grpc:grpc-netty-shaded:$grpcVersion"
+    implementation "io.grpc:grpc-protobuf:$grpcVersion"
+    implementation "io.grpc:grpc-stub:$grpcVersion"
+}
+
+test {
+    useTestNG() {
+        suites 'src/test/resources/testng/' + (project.findProperty('suite') ?: 'web-suite') + '.xml'
+        useDefaultListeners = false
+        listeners << 'com.epam.reportportal.testng.ReportPortalTestNGListener'
+    }
+    
+    systemProperty 'rp.endpoint', System.getProperty('rp.endpoint', 'http://localhost:8080')
+    systemProperty 'rp.api.key', System.getProperty('rp.api.key', '')
+    systemProperty 'rp.project', System.getProperty('rp.project', 'test_automation')
+    systemProperty 'rp.launch', System.getProperty('rp.launch', 'TAFLEX')
+    
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+    
+    reports {
+        html.outputLocation = file("$buildDir/reports/tests")
+    }
+}
+
+tasks.register('installPlaywright', JavaExec) {
+    group = 'setup'
+    description = 'Install Playwright browsers'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.microsoft.playwright.CLI'
+    args 'install'
+}
+
+tasks.register('webTest', Test) {
+    group = 'verification'
+    description = 'Run Web tests'
+    systemProperty 'suite', 'web-suite'
+}
+
+tasks.register('apiTest', Test) {
+    group = 'verification'
+    description = 'Run API tests'
+    systemProperty 'suite', 'api-suite'
+}
+
+tasks.register('mobileTest', Test) {
+    group = 'verification'
+    description = 'Run Mobile tests'
+    systemProperty 'suite', 'mobile-suite'
+}
+
+tasks.register('smokeTest', Test) {
+    group = 'verification'
+    description = 'Run Smoke tests'
+    systemProperty 'suite', 'smoke-suite'
+}
+
+tasks.register('regressionTest', Test) {
+    group = 'verification'
+    description = 'Run Regression tests'
+    systemProperty 'suite', 'regression-suite'
+}
+
+compileTestJava {
+    dependsOn installPlaywright
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+        resources {
+            srcDirs = ['src/main/resources']
+        }
+    }
+    test {
+        java {
+            srcDirs = ['src/test/java']
+        }
+        resources {
+            srcDirs = ['src/test/resources']
+        }
+    }
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}
