@@ -22,29 +22,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+          cache: gradle
+
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: java
           queries: security-extended,security-and-quality
-
-      - name: Set up JDK 23
-        uses: actions/setup-java@v4
-        with:
-          java-version: '23'
-          distribution: 'corretto'
-          cache: gradle
+          build-mode: manual
 
       - name: Create automation.properties
         run: cp automation.properties.template automation.properties
 
-      - name: Build project
-        run: ./gradlew compileJava --no-daemon
+      - name: Build project for CodeQL
+        run: |
+          export CODEQL_EXTRACTOR_JAVA_ROOT="$CODEQL_EXTRACTOR_JAVA_ROOT"
+          ./gradlew compileJava --no-daemon --info
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
           category: "/language:java"
+          output: codeql-results
 
   # Job 2: Dependency Review
   dependency-review:
