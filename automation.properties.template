@@ -1,0 +1,165 @@
+# TAFLEX - Test Automation Framework Configuration
+# ================================================
+# Copy this file to automation.properties and customize for your environment.
+# automation.properties is gitignored and should NOT be committed to version control.
+
+# ================================================
+# Execution Configuration
+# ================================================
+# Mode: web | api | mobile
+execution.mode=web
+
+# Environment: dev | staging | prod
+environment=staging
+
+# ================================================
+# Web Configuration (Playwright)
+# ================================================
+# Browser: chromium | firefox | webkit
+web.browser=chromium
+
+# Run browser in headless mode
+web.headless=false
+
+# Default timeout in seconds
+web.timeout=30
+
+# Base URL for web application
+web.base.url=https://staging.example.com
+
+# Enable tracing (for debugging)
+web.tracing.enabled=false
+
+# Viewport size
+web.viewport.width=1920
+web.viewport.height=1080
+
+# ================================================
+# API Configuration (Apache HttpClient)
+# ================================================
+# Base URL for API
+api.base.url=https://api.staging.example.com
+
+# Default timeout in seconds
+api.timeout=30
+
+# Default content type
+api.content.type=application/json
+
+# Authentication (if needed)
+# api.auth.type=basic
+# api.auth.username=your_username
+# api.auth.password=your_password
+
+# Or Bearer token
+# api.auth.type=bearer
+# api.auth.token=your_token
+
+# ================================================
+# Mobile Configuration (Appium)
+# ================================================
+# Platform: android | ios
+mobile.platform=android
+
+# Appium server URL
+mobile.appium.url=http://localhost:4723
+
+# Device name (for device farm)
+mobile.device.name=Pixel5
+
+# App path (local file or cloud URL)
+mobile.app.path=/path/to/your/app.apk
+
+# Android-specific
+mobile.app.package=com.example.app
+mobile.app.activity=com.example.app.MainActivity
+
+# iOS-specific
+mobile.app.bundleId=com.example.app
+
+# ================================================
+# Database Configuration
+# ================================================
+# Database URL
+# db.url=jdbc:postgresql://localhost:5432/testdb
+# db.url=jdbc:mysql://localhost:3306/testdb
+
+# Database credentials
+db.username=admin
+db.password=your_password
+
+# Connection pool size
+db.pool.size=10
+
+# ================================================
+# Report Portal Configuration
+# ================================================
+# Enable Report Portal integration
+reportportal.enabled=false
+
+# Report Portal server URL
+reportportal.endpoint=http://localhost:8080
+
+# API Key (generate in Report Portal UI)
+reportportal.api.key=your_api_key_here
+
+# Project name
+reportportal.project=test_automation
+
+# Launch name (test run identifier)
+reportportal.launch=TAFLEX_Test_Run
+
+# ================================================
+# Test Data Configuration
+# ================================================
+# Path to test data files
+test.data.path=src/test/resources/data/
+
+# Path to locator files
+test.locators.path=src/test/resources/locators/
+
+# ================================================
+# Parallel Execution Configuration
+# ================================================
+# Enable parallel execution
+parallel.enabled=true
+
+# Number of threads
+parallel.threads=4
+
+# ================================================
+# Retry Configuration
+# ================================================
+# Enable retry for failed tests
+retry.enabled=true
+
+# Maximum retry attempts
+retry.max.attempts=2
+
+# ================================================
+# Logging Configuration
+# ================================================
+# Log level: DEBUG | INFO | WARN | ERROR
+log.level=INFO
+
+# Log to console
+log.console=true
+
+# Log to file
+log.file=true
+log.file.path=logs/test-automation.log
+
+# ================================================
+# Screenshot Configuration
+# ================================================
+# Capture screenshots on failure
+screenshot.on.failure=true
+
+# Screenshot directory
+screenshot.dir=screenshots/
+
+# ================================================
+# Custom Properties (for your specific needs)
+# ================================================
+# Add any custom properties below
+# custom.property=value
