@@ -70,7 +70,7 @@ cd taflex
 ```
 
 This will:
-- Check Java version (requires 23+)
+- Check Java version (requires 21+)
 - Verify Gradle installation
 - Create `automation.properties` from template
 - Create required directories
