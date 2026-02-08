@@ -139,3 +139,9 @@ AGENTS.md
 docs/_build/
 docs/_static/
 docs/_templates/
+
+# Docs preview (local)
+.venv-docs/
+.mkdocs-preview.pid
+.mkdocs-preview.addr
+.mkdocs-preview.log
