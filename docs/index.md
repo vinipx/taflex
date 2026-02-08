@@ -1,7 +1,5 @@
-# TAFLEX Documentation
-
 <p align="center">
-  <img src="assets/logo.png" alt="TAFLEX Logo" width="200"/>
+  <img class="taflex-hero-logo" src="assets/logo.svg" alt="TAFLEX Logo"/>
 </p>
 
 <p align="center">

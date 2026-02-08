@@ -1,4 +1,4 @@
-site_name: TAFLEX Documentation
+site_name: ""
 site_description: Enterprise Test Automation Framework Documentation
 site_author: QA Engineering Team
 site_url: https://vinipx.github.io/taflex
@@ -8,7 +8,7 @@ site_dir: site
 
 theme:
   name: material
-  logo: assets/logo.png
+  logo: assets/logo.svg
   favicon: assets/favicon.png
   palette:
     # Palette toggle for light mode

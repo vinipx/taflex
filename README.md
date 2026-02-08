@@ -1,5 +1,9 @@
 # TAFLEX - Unified Test Automation Framework
 
+<p align="center">
+  <img src="docs/assets/logo.svg" alt="TAFLEX Logo" width="320"/>
+</p>
+
 [![Java Version](https://img.shields.io/badge/Java-21%2B-blue.svg)](https://openjdk.org/)
 [![Gradle](https://img.shields.io/badge/Gradle-8.5-green.svg)](https://gradle.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-orange.svg)](LICENSE)
