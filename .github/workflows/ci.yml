@@ -249,8 +249,8 @@ jobs:
           java-version: '21'
           distribution: 'corretto'
 
-      - name: Make setup script executable
-        run: chmod +x setup.sh
+      - name: Make scripts executable
+        run: chmod +x setup.sh gradlew
 
       - name: Run setup script
         run: |
