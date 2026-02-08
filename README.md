@@ -4,10 +4,16 @@
   <img src="docs/assets/logo.svg" alt="TAFLEX Logo" width="320"/>
 </p>
 
-[![Java Version](https://img.shields.io/badge/Java-21%2B-blue.svg)](https://openjdk.org/)
-[![Gradle](https://img.shields.io/badge/Gradle-8.5-green.svg)](https://gradle.org/)
-[![License](https://img.shields.io/badge/License-Apache%202.0-orange.svg)](LICENSE)
-[![GitHub Repo](https://img.shields.io/badge/GitHub-vinipx/taflex-blue.svg)](https://github.com/vinipx/taflex)
+<p align="center">
+  [![Java Version](https://img.shields.io/badge/Java-21%2B-blue.svg)](https://openjdk.org/)
+  [![Gradle](https://img.shields.io/badge/Gradle-8.5-green.svg)](https://gradle.org/)
+  [![License](https://img.shields.io/badge/License-Apache%202.0-orange.svg)](LICENSE)
+  [![GitHub Repo](https://img.shields.io/badge/GitHub-vinipx/taflex-blue.svg)](https://github.com/vinipx/taflex)
+</p>
+
+<p align="center">
+  <a href="https://vinipx.github.io/taflex">Read the Documentation →</a>
+</p>
 
 A production-ready, enterprise-grade unified test automation framework supporting **Web** (Playwright), **API** (Apache HttpClient), and **Mobile** (Appium) testing with externalized locators and configuration.
 
