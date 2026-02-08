@@ -1,7 +1,7 @@
 site_name: TAFLEX Documentation
 site_description: Enterprise Test Automation Framework Documentation
 site_author: QA Engineering Team
-site_url: https://your-org.github.io/taflex
+site_url: https://vinipx.github.io/taflex
 
 docs_dir: docs
 site_dir: site
