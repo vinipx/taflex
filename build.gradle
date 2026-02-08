@@ -78,28 +78,6 @@ dependencies {
     implementation "io.grpc:grpc-stub:$grpcVersion"
 }
 
-test {
-    useTestNG() {
-        suites 'src/test/resources/testng/' + (project.findProperty('suite') ?: 'web-suite') + '.xml'
-        useDefaultListeners = false
-        listeners << 'com.epam.reportportal.testng.ReportPortalTestNGListener'
-    }
-    
-    systemProperty 'rp.endpoint', System.getProperty('rp.endpoint', 'http://localhost:8080')
-    systemProperty 'rp.api.key', System.getProperty('rp.api.key', '')
-    systemProperty 'rp.project', System.getProperty('rp.project', 'test_automation')
-    systemProperty 'rp.launch', System.getProperty('rp.launch', 'TAFLEX')
-    
-    testLogging {
-        events "passed", "skipped", "failed"
-        showStandardStreams = true
-    }
-    
-    reports {
-        html.outputLocation = file("$buildDir/reports/tests")
-    }
-}
-
 tasks.register('installPlaywright', JavaExec) {
     group = 'setup'
     description = 'Install Playwright browsers'
@@ -157,6 +135,16 @@ compileTestJava {
 }
 
 sourceSets {
+    unitTest {
+        java {
+            srcDirs = ['src/test/java/io/github/vinipx/tests/unit']
+        }
+        resources {
+            srcDirs = ['src/test/resources']
+        }
+        compileClasspath += sourceSets.main.output + configurations.testCompileClasspath
+        runtimeClasspath += output + compileClasspath + configurations.testRuntimeClasspath
+    }
     main {
         java {
             srcDirs = ['src/main/java']
@@ -172,6 +160,26 @@ sourceSets {
         resources {
             srcDirs = ['src/test/resources']
         }
+    }
+}
+
+configurations {
+    unitTestImplementation.extendsFrom testImplementation
+    unitTestRuntimeOnly.extendsFrom testRuntimeOnly
+}
+
+test {
+    useTestNG()
+    testClassesDirs = sourceSets.unitTest.output.classesDirs
+    classpath = sourceSets.unitTest.runtimeClasspath
+    
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+    
+    reports {
+        html.outputLocation = file("$buildDir/reports/tests")
     }
 }
 
