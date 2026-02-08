@@ -353,10 +353,19 @@ screenshot.on.failure=true
 
 ## 📚 Documentation
 
-- [Architecture Guide](docs/ARCHITECTURE.md)
-- [API Reference](docs/API_REFERENCE.md)
-- [Best Practices](docs/BEST_PRACTICES.md)
-- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- **Docs site**: https://vinipx.github.io/taflex
+- [Architecture Overview](docs/architecture/overview.md)
+- [API Reference](docs/api/core-interfaces.md)
+- [Best Practices](docs/best-practices/test-design.md)
+- [Troubleshooting](docs/troubleshooting/common-issues.md)
+
+## 🤖 AI Cursor Configuration
+
+This repo includes optional Cursor guidance to keep contributions consistent.
+
+- **Rules**: `.cursor/rules/` defines framework standards and conventions.
+- **Skills**: `.cursor/skills/` provides task-specific guidance (API, web, mobile).
+- **Usage**: open the project in Cursor and these are auto‑loaded.
 
 ## 🤝 Contributing
 
