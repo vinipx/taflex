@@ -1,5 +1,3 @@
-# TAFLEX - Unified Test Automation Framework
-
 <p align="center">
   <img src="docs/assets/logo.svg" alt="TAFLEX Logo" width="320"/>
 </p>
@@ -23,8 +21,8 @@
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/License-Apache%202.0-orange.svg" alt="License"/>
   </a>
-  <a href="https://github.com/vinipx/taflex">
-    <img src="https://img.shields.io/badge/GitHub-vinipx/taflex-blue.svg" alt="GitHub Repo"/>
+  <a href="https://vinipx.github.io/taflex">
+    <img src="https://img.shields.io/badge/Docs-TAFLEX-0ea5e9.svg" alt="Documentation"/>
   </a>
 </p>
 
