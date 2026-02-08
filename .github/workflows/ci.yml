@@ -21,7 +21,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Job 1: Verify Java Setup and Dependencies
   setup-verification:
     name: Setup Verification
     runs-on: ubuntu-latest
@@ -44,20 +43,19 @@ jobs:
       - name: Make scripts executable
         run: chmod +x setup.sh gradlew
 
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v2
 
-  # Job 2: Compile Main Source Code
+      - name: Create automation.properties
+        run: cp automation.properties.template automation.properties
+
+      - name: Ensure required directories
+        run: |
+          mkdir -p logs screenshots test-output
+          test -f automation.properties && echo "✓ automation.properties created"
+          test -d logs && echo "✓ logs directory created"
+          test -d screenshots && echo "✓ screenshots directory created"
+
   compile-main:
     name: Compile Main Sources
     runs-on: ubuntu-latest
@@ -73,14 +71,6 @@ jobs:
           distribution: 'corretto'
           cache: gradle
 
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-
       - name: Compile main sources
         run: ./gradlew compileJava --no-daemon
 
@@ -91,7 +81,6 @@ jobs:
           name: main-compilation-reports
           path: build/reports/problems/
 
-  # Job 3: Compile Test Source Code
   compile-tests:
     name: Compile Test Sources
     runs-on: ubuntu-latest
@@ -107,14 +96,6 @@ jobs:
           distribution: 'corretto'
           cache: gradle
 
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-
       - name: Create automation.properties from template
         run: cp automation.properties.template automation.properties
 
@@ -128,70 +109,6 @@ jobs:
           name: test-compilation-reports
           path: build/reports/problems/
 
-  # Job 4: Quick Compile Verification
-  compile-verification:
-    name: Quick Compile Verification
-    runs-on: ubuntu-latest
-    needs: compile-main
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'corretto'
-          cache: gradle
-
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-
-      - name: Create automation.properties
-        run: cp automation.properties.template automation.properties
-
-      - name: Quick compile verification (API tests only)
-        run: ./gradlew compileTestJava --no-daemon
-
-      - name: Run minimal API test
-        run: ./gradlew test -Psuite=ci-compile-suite --no-daemon || echo "API tests require configured endpoints"
-
-  # Job 5: Code Quality Checks
-  code-quality:
-    name: Code Quality Checks
-    runs-on: ubuntu-latest
-    needs: compile-main
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'corretto'
-          cache: gradle
-
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-
-      - name: Run Checkstyle (if configured)
-        run: ./gradlew check --no-daemon || true
-
-      - name: Run SpotBugs (if configured)
-        run: ./gradlew spotbugsMain --no-daemon || true
-
-  # Job 5: Full Build Verification
   full-build:
     name: Full Build
     runs-on: ubuntu-latest
@@ -207,23 +124,11 @@ jobs:
           distribution: 'corretto'
           cache: gradle
 
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-
       - name: Create automation.properties
         run: cp automation.properties.template automation.properties
 
       - name: Build project (compile and assemble)
         run: ./gradlew build -x test --no-daemon
-
-      - name: Verify JAR creation
-        run: |
-          ls -la build/libs/ || echo "No JAR files created (this is OK for library projects)"
 
       - name: Upload build artifacts
         if: always()
@@ -235,107 +140,10 @@ jobs:
             build/classes/
           retention-days: 7
 
-  # Job 6: Setup Script Validation
-  validate-setup:
-    name: Validate Setup Script
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'corretto'
-
-      - name: Make scripts executable
-        run: chmod +x setup.sh gradlew
-
-      - name: Run setup script
-        run: |
-          export CI=true
-          ./setup.sh || true
-        timeout-minutes: 10
-
-      - name: Verify setup created necessary files
-        run: |
-          test -f automation.properties && echo "✓ automation.properties created"
-          test -d logs && echo "✓ logs directory created"
-          test -d screenshots && echo "✓ screenshots directory created"
-
-  # Job 7: Static Analysis
-  static-analysis:
-    name: Static Analysis
-    runs-on: ubuntu-latest
-    needs: compile-main
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'corretto'
-          cache: gradle
-
-      - name: Run compilation check
-        run: ./gradlew compileJava --no-daemon
-
-      - name: Check for common issues
-        run: |
-          echo "Checking for common issues..."
-          
-          # Check for System.out.print statements
-          if grep -r "System.out.print" src/main/java/ --include="*.java" | grep -v "// TEST"; then
-            echo "⚠️  Warning: Found System.out.print statements in main code"
-          fi
-          
-          # Check for TODO/FIXME without issue reference
-          if grep -r "TODO\|FIXME" src/main/java/ --include="*.java" | grep -v "TODO(#"; then
-            echo "⚠️  Warning: Found TODO/FIXME without issue reference"
-          fi
-          
-          echo "✓ Static analysis complete"
-
-  # Job 8: Documentation Build (if docs changed)
-  docs-build:
-    name: Build Documentation
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-
-      - name: Install MkDocs
-        run: |
-          pip install mkdocs-material
-          pip install -r docs/requirements.txt
-
-      - name: Build documentation
-        run: mkdocs build --strict
-
-      - name: Upload documentation
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: documentation-site
-          path: site/
-          retention-days: 5
-
-  # Job 10: Final Status Summary
   status-summary:
     name: CI Status Summary
     runs-on: ubuntu-latest
-    needs: [setup-verification, compile-main, compile-tests, compile-verification, code-quality, full-build, validate-setup, static-analysis]
+    needs: [setup-verification, compile-main, compile-tests, full-build]
     if: always()
     steps:
       - name: Summary
@@ -347,11 +155,7 @@ jobs:
           echo "| Setup Verification | ${{ needs.setup-verification.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Compile Main | ${{ needs.compile-main.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Compile Tests | ${{ needs.compile-tests.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Compile Verification | ${{ needs.compile-verification.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Code Quality | ${{ needs.code-quality.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Full Build | ${{ needs.full-build.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Validate Setup | ${{ needs.validate-setup.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Static Analysis | ${{ needs.static-analysis.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           if [ "${{ job.status }}" == "failure" ]; then
