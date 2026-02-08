@@ -94,6 +94,17 @@ public class ConfigManager {
     public static String getProperty(String key, String defaultValue) {
         return getInstance().properties.getProperty(key, defaultValue);
     }
+
+    /**
+     * Get required property value as String
+     */
+    public static String requireProperty(String key) {
+        String value = getProperty(key);
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException("Required property missing or empty: " + key);
+        }
+        return value.trim();
+    }
     
     /**
      * Get property value as Integer

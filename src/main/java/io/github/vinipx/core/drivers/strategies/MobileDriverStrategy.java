@@ -16,12 +16,21 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Mobile automation driver implementation using Appium.
@@ -33,7 +42,38 @@ public class MobileDriverStrategy implements AutomationDriver {
     
     private AppiumDriver driver;
     private LocatorStrategy locatorStrategy;
-    private String platform;
+    private MobilePlatform platform;
+    private Process appiumProcess;
+    private boolean appiumStartedByFramework;
+
+    private enum MobilePlatform {
+        ANDROID("Android"),
+        IOS("iOS");
+
+        private final String capabilityName;
+
+        MobilePlatform(String capabilityName) {
+            this.capabilityName = capabilityName;
+        }
+
+        public String getCapabilityName() {
+            return capabilityName;
+        }
+
+        public static MobilePlatform from(String value) {
+            if (value == null) {
+                return ANDROID;
+            }
+            String normalized = value.trim().toLowerCase();
+            if ("android".equals(normalized)) {
+                return ANDROID;
+            }
+            if ("ios".equals(normalized)) {
+                return IOS;
+            }
+            throw new DriverException("Unsupported platform: " + value);
+        }
+    }
     
     @Override
     public void initialize() {
@@ -41,43 +81,19 @@ public class MobileDriverStrategy implements AutomationDriver {
         
         try {
             // Get configuration
-            platform = ConfigManager.getProperty("mobile.platform", "android").toLowerCase();
+            platform = resolvePlatform();
             String appiumUrl = ConfigManager.getProperty("mobile.appium.url", "http://localhost:4723");
             String appPath = ConfigManager.getProperty("mobile.app.path");
             String deviceName = ConfigManager.getProperty("mobile.device.name");
+
+            ensureAppiumServer(appiumUrl);
             
             // Build capabilities
-            DesiredCapabilities caps = new DesiredCapabilities();
-            caps.setCapability("platformName", platform);
-            
-            if (deviceName != null && !deviceName.isEmpty()) {
-                caps.setCapability("deviceName", deviceName);
-            }
-            
-            if (appPath != null && !appPath.isEmpty()) {
-                caps.setCapability("app", appPath);
-            }
-            
-            // Platform-specific capabilities
-            if (platform.equals("android")) {
-                caps.setCapability("automationName", "UiAutomator2");
-                caps.setCapability("appPackage", ConfigManager.getProperty("mobile.app.package"));
-                caps.setCapability("appActivity", ConfigManager.getProperty("mobile.app.activity"));
-            } else if (platform.equals("ios")) {
-                caps.setCapability("automationName", "XCUITest");
-                caps.setCapability("bundleId", ConfigManager.getProperty("mobile.app.bundleId"));
-            }
+            DesiredCapabilities caps = buildCapabilities(platform, deviceName, appPath);
             
             // Create driver
             URL url = new URL(appiumUrl);
-            
-            if (platform.equals("android")) {
-                driver = new AndroidDriver(url, caps);
-            } else if (platform.equals("ios")) {
-                driver = new IOSDriver(url, caps);
-            } else {
-                throw new DriverException("Unsupported platform: " + platform);
-            }
+            driver = createDriver(url, platform, caps);
             
             // Set implicit wait
             int timeout = ConfigManager.getTimeout();
@@ -86,7 +102,7 @@ public class MobileDriverStrategy implements AutomationDriver {
             // Initialize locator strategy
             locatorStrategy = LocatorFactory.getLocatorStrategy();
             
-            logger.info("Mobile driver initialized successfully for platform: {}", platform);
+            logger.info("Mobile driver initialized successfully for platform: {}", platform.name().toLowerCase());
             
         } catch (MalformedURLException e) {
             logger.error("Invalid Appium URL", e);
@@ -105,6 +121,7 @@ public class MobileDriverStrategy implements AutomationDriver {
             if (driver != null) {
                 driver.quit();
             }
+            stopAppiumIfStarted();
             logger.info("Mobile driver terminated successfully");
         } catch (Exception e) {
             logger.error("Error terminating Mobile driver", e);
@@ -206,7 +223,7 @@ public class MobileDriverStrategy implements AutomationDriver {
      * @return Platform name
      */
     public String getPlatform() {
-        return platform;
+        return platform == null ? null : platform.name().toLowerCase();
     }
     
     /**
@@ -262,6 +279,263 @@ public class MobileDriverStrategy implements AutomationDriver {
             ((AndroidDriver) driver).terminateApp(
                 ConfigManager.getProperty("mobile.app.package")
             );
+        }
+    }
+
+    private DesiredCapabilities buildCapabilities(MobilePlatform platform, String deviceName, String appPath) {
+        DesiredCapabilities caps = new DesiredCapabilities();
+        caps.setCapability("platformName", platform.getCapabilityName());
+
+        if (deviceName != null && !deviceName.isEmpty()) {
+            caps.setCapability("deviceName", deviceName);
+        }
+
+        if (appPath != null && !appPath.isEmpty()) {
+            caps.setCapability("app", appPath);
+        }
+
+        if (platform == MobilePlatform.ANDROID) {
+            return buildAndroidCapabilities(caps);
+        }
+        return buildIosCapabilities(caps);
+    }
+
+    private DesiredCapabilities buildAndroidCapabilities(DesiredCapabilities caps) {
+        caps.setCapability("automationName", "UiAutomator2");
+        caps.setCapability("appPackage", ConfigManager.requireProperty("mobile.app.package"));
+        caps.setCapability("appActivity", ConfigManager.requireProperty("mobile.app.activity"));
+        return caps;
+    }
+
+    private DesiredCapabilities buildIosCapabilities(DesiredCapabilities caps) {
+        caps.setCapability("automationName", "XCUITest");
+        caps.setCapability("bundleId", ConfigManager.requireProperty("mobile.app.bundleId"));
+        return caps;
+    }
+
+    private AppiumDriver createDriver(URL url, MobilePlatform platform, DesiredCapabilities caps) {
+        if (platform == MobilePlatform.ANDROID) {
+            return new AndroidDriver(url, caps);
+        }
+        if (platform == MobilePlatform.IOS) {
+            return new IOSDriver(url, caps);
+        }
+        throw new DriverException("Unsupported platform: " + platform);
+    }
+
+    private MobilePlatform resolvePlatform() {
+        boolean autoDetect = ConfigManager.getBooleanProperty("mobile.platform.auto", true);
+        String configuredPlatform = ConfigManager.getProperty("mobile.platform", "android");
+
+        if (!autoDetect) {
+            logger.info("Mobile platform auto-detection disabled; using {}", configuredPlatform);
+            return MobilePlatform.from(configuredPlatform);
+        }
+
+        MobilePlatform detected = detectPlatformFromLocalTools();
+        if (detected != null) {
+            logger.info("Detected mobile platform via local tools: {}", detected.name().toLowerCase());
+            return detected;
+        }
+
+        logger.info("No mobile platform detected; using {}", configuredPlatform);
+        return MobilePlatform.from(configuredPlatform);
+    }
+
+    private MobilePlatform detectPlatformFromLocalTools() {
+        boolean androidConnected = hasAndroidDevice();
+        boolean iosConnected = hasIosDevice();
+
+        if (androidConnected && iosConnected) {
+            logger.warn("Both Android and iOS devices detected; falling back to configured platform");
+            return null;
+        }
+        if (androidConnected) {
+            return MobilePlatform.ANDROID;
+        }
+        if (iosConnected) {
+            return MobilePlatform.IOS;
+        }
+        return null;
+    }
+
+    private boolean hasAndroidDevice() {
+        String output = runCommand("adb", "devices");
+        if (output.isEmpty()) {
+            return false;
+        }
+        String[] lines = output.split("\\R");
+        for (String line : lines) {
+            if (line.startsWith("List of devices")) {
+                continue;
+            }
+            if (line.contains("\tdevice")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean hasIosDevice() {
+        String output = runCommand("idevice_id", "-l");
+        if (output.isEmpty()) {
+            return false;
+        }
+        String[] lines = output.split("\\R");
+        for (String line : lines) {
+            if (!line.trim().isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String runCommand(String... command) {
+        Process process = null;
+        try {
+            ProcessBuilder builder = new ProcessBuilder(command);
+            builder.redirectErrorStream(true);
+            process = builder.start();
+
+            boolean finished = process.waitFor(3, TimeUnit.SECONDS);
+            if (!finished) {
+                process.destroyForcibly();
+                return "";
+            }
+
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                StringBuilder output = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    output.append(line).append("\n");
+                }
+                return output.toString();
+            }
+        } catch (IOException e) {
+            logger.debug("Command not available: {}", String.join(" ", command), e);
+            return "";
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.debug("Command interrupted: {}", String.join(" ", command), e);
+            return "";
+        } finally {
+            if (process != null && process.isAlive()) {
+                process.destroyForcibly();
+            }
+        }
+    }
+
+    private void ensureAppiumServer(String appiumUrl) {
+        if (isAppiumRunning(appiumUrl)) {
+            logger.info("Appium server is running at {}", appiumUrl);
+            return;
+        }
+
+        boolean autoStart = ConfigManager.getBooleanProperty("mobile.appium.auto.start", false);
+        if (!autoStart) {
+            throw new DriverException("Appium server is not running. Start it manually or enable mobile.appium.auto.start.");
+        }
+
+        startAppium(appiumUrl);
+
+        int timeoutSeconds = ConfigManager.getIntProperty("mobile.appium.start.timeout.seconds", 30);
+        Instant deadline = Instant.now().plus(Duration.ofSeconds(timeoutSeconds));
+        while (Instant.now().isBefore(deadline)) {
+            if (isAppiumRunning(appiumUrl)) {
+                logger.info("Appium server started successfully");
+                return;
+            }
+            if (appiumProcess != null && !appiumProcess.isAlive()) {
+                throw new DriverException("Appium server process exited before becoming ready.");
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new DriverException("Interrupted while waiting for Appium server to start.", e);
+            }
+        }
+
+        throw new DriverException("Timed out waiting for Appium server to start.");
+    }
+
+    private boolean isAppiumRunning(String appiumUrl) {
+        String statusPath = ConfigManager.getProperty("mobile.appium.status.path", "/status");
+        String statusUrl = buildStatusUrl(appiumUrl, statusPath);
+        HttpURLConnection connection = null;
+        try {
+            URL url = new URL(statusUrl);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(2000);
+            connection.setReadTimeout(2000);
+            int responseCode = connection.getResponseCode();
+            return responseCode >= 200 && responseCode < 300;
+        } catch (IOException e) {
+            return false;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    private String buildStatusUrl(String appiumUrl, String statusPath) {
+        String base = appiumUrl;
+        String path = statusPath == null ? "/status" : statusPath.trim();
+        if (path.isEmpty()) {
+            path = "/status";
+        }
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+        if (base.endsWith("/") && path.startsWith("/")) {
+            return base.substring(0, base.length() - 1) + path;
+        }
+        if (!base.endsWith("/") && !path.startsWith("/")) {
+            return base + "/" + path;
+        }
+        return base + path;
+    }
+
+    private void startAppium(String appiumUrl) {
+        String command = ConfigManager.getProperty("mobile.appium.start.command", "appium");
+        String args = ConfigManager.getProperty("mobile.appium.start.args", "");
+
+        List<String> commandParts = new ArrayList<>();
+        commandParts.add(command);
+        if (args != null && !args.trim().isEmpty()) {
+            String[] splitArgs = args.trim().split("\\s+");
+            for (String arg : splitArgs) {
+                if (!arg.isEmpty()) {
+                    commandParts.add(arg);
+                }
+            }
+        }
+
+        try {
+            ProcessBuilder builder = new ProcessBuilder(commandParts);
+            builder.redirectErrorStream(true);
+            appiumProcess = builder.start();
+            appiumStartedByFramework = true;
+            logger.info("Starting Appium server with command: {}", String.join(" ", commandParts));
+            logger.info("Waiting for Appium server at {}", appiumUrl);
+        } catch (IOException e) {
+            throw new DriverException("Failed to start Appium server. Ensure Appium is installed and the command is valid.", e);
+        }
+    }
+
+    private void stopAppiumIfStarted() {
+        if (appiumStartedByFramework && appiumProcess != null && appiumProcess.isAlive()) {
+            appiumProcess.destroy();
+            try {
+                if (!appiumProcess.waitFor(5, TimeUnit.SECONDS)) {
+                    appiumProcess.destroyForcibly();
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                appiumProcess.destroyForcibly();
+            }
         }
     }
 }

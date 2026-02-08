@@ -61,8 +61,24 @@ api.content.type=application/json
 # Platform: android | ios
 mobile.platform=android
 
+# Auto-detect platform from connected devices (adb/idevice_id)
+mobile.platform.auto=true
+
 # Appium server URL
 mobile.appium.url=http://localhost:4723
+
+# Auto-start local Appium server when not running
+mobile.appium.auto.start=false
+
+# Appium start command and optional args
+mobile.appium.start.command=appium
+mobile.appium.start.args=
+
+# Wait time for Appium to become ready (seconds)
+mobile.appium.start.timeout.seconds=30
+
+# Status path used for health checks
+mobile.appium.status.path=/status
 
 # Device name (for device farm)
 mobile.device.name=Pixel5
@@ -70,11 +86,15 @@ mobile.device.name=Pixel5
 # App path (local file or cloud URL)
 mobile.app.path=/path/to/your/app.apk
 
-# Android-specific
+# ----------------
+# Android-specific (required when mobile.platform=android)
+# ----------------
 mobile.app.package=com.example.app
 mobile.app.activity=com.example.app.MainActivity
 
-# iOS-specific
+# ----------------
+# iOS-specific (required when mobile.platform=ios)
+# ----------------
 mobile.app.bundleId=com.example.app
 
 # ================================================

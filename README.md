@@ -158,7 +158,13 @@ api.content.type=application/json
 
 ```properties
 mobile.platform=android
+mobile.platform.auto=true
 mobile.appium.url=http://localhost:4723
+mobile.appium.auto.start=false
+mobile.appium.start.command=appium
+mobile.appium.start.args=
+mobile.appium.start.timeout.seconds=30
+mobile.appium.status.path=/status
 mobile.device.name=Pixel5
 mobile.app.path=/path/to/app.apk
 ```

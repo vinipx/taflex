@@ -240,12 +240,18 @@ WebDriverException: Connection refused (Connection refused)
    appium
    ```
 
-2. Check Appium configuration:
+2. Optionally enable auto-start:
+   ```properties
+   mobile.appium.auto.start=true
+   mobile.appium.start.command=appium
+   ```
+
+3. Check Appium configuration:
    ```properties
    mobile.appium.url=http://localhost:4723
    ```
 
-3. Verify device connection:
+4. Verify device connection:
    ```bash
    # Android
    adb devices

@@ -906,9 +906,15 @@ api.content.type=application/json
 
 # Mobile Configuration
 mobile.platform=android
+mobile.platform.auto=true
 mobile.device.name=Pixel5
 mobile.app.path=/apps/test.apk
 mobile.appium.url=http://localhost:4723
+mobile.appium.auto.start=false
+mobile.appium.start.command=appium
+mobile.appium.start.args=
+mobile.appium.start.timeout.seconds=30
+mobile.appium.status.path=/status
 
 # Database Configuration
 db.url=jdbc:postgresql://localhost:5432/testdb
