@@ -5,10 +5,27 @@
 </p>
 
 <p align="center">
-  [![Java Version](https://img.shields.io/badge/Java-21%2B-blue.svg)](https://openjdk.org/)
-  [![Gradle](https://img.shields.io/badge/Gradle-8.5-green.svg)](https://gradle.org/)
-  [![License](https://img.shields.io/badge/License-Apache%202.0-orange.svg)](LICENSE)
-  [![GitHub Repo](https://img.shields.io/badge/GitHub-vinipx/taflex-blue.svg)](https://github.com/vinipx/taflex)
+  <a href="https://openjdk.org/">
+    <img src="https://img.shields.io/badge/Java-21%2B-blue.svg" alt="Java Version"/>
+  </a>
+  <a href="https://gradle.org/">
+    <img src="https://img.shields.io/badge/Gradle-8.5-green.svg" alt="Gradle"/>
+  </a>
+  <a href="https://playwright.dev/java/">
+    <img src="https://img.shields.io/badge/Playwright-1.41.0-2ea44f.svg" alt="Playwright"/>
+  </a>
+  <a href="https://appium.io/">
+    <img src="https://img.shields.io/badge/Appium-9.0.0-6e56cf.svg" alt="Appium"/>
+  </a>
+  <a href="https://hc.apache.org/httpcomponents-client-4.5.x/">
+    <img src="https://img.shields.io/badge/HttpClient-4.5.14-4c7aaf.svg" alt="HttpClient"/>
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-Apache%202.0-orange.svg" alt="License"/>
+  </a>
+  <a href="https://github.com/vinipx/taflex">
+    <img src="https://img.shields.io/badge/GitHub-vinipx/taflex-blue.svg" alt="GitHub Repo"/>
+  </a>
 </p>
 
 <p align="center">
