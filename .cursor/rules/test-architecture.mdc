@@ -1,0 +1,29 @@
+---
+description: Test architecture and suite conventions for taflex
+alwaysApply: true
+---
+# Test Architecture
+
+## Core patterns
+- Follow the Factory/Strategy design: use `DriverFactory` to resolve an `AutomationDriver`.
+- Test classes extend `BaseTest` for setup/teardown and reporting hooks.
+- Keep tests orchestration-only; driver/strategy classes handle implementation details.
+
+## Suite taxonomy
+- Use TestNG groups: `smoke`, `regression`, `web`, `api`, `mobile` as applicable.
+- Align suites with Gradle tasks: `webTest`, `apiTest`, `mobileTest`, `smokeTest`, `regressionTest`.
+
+## Configuration and data
+- Read environment and execution mode via `ConfigManager`.
+- Externalize locators and test data under `src/test/resources`.
+- Avoid hardcoded endpoints/URLs in tests; use locator keys and config properties.
+
+## Example
+```java
+@Test(groups = {"smoke", "api"}, description = "Verify GET orders endpoint returns 200")
+public void shouldGetOrdersSuccessfully() {
+    ApiDriverStrategy api = (ApiDriverStrategy) driver;
+    ApiResponse response = api.get("orders.endpoint");
+    Assert.assertEquals(response.getStatusCode(), 200);
+}
+```
