@@ -14,9 +14,8 @@
 /setup.sh @vinipx @devops-team
 
 # Documentation
-docs/ @vinipx @documentation-team
+documentation/ @vinipx @documentation-team
 *.md @vinipx @documentation-team
-mkdocs.yml @vinipx @documentation-team
 
 # GitHub Actions
 .github/workflows/ @vinipx @devops-team

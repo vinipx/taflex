@@ -1,3 +1,8 @@
+---
+sidebar_position: 1
+title: Architecture Overview
+---
+
 # Architecture Overview
 
 TAFLEX is built on a robust, extensible architecture that follows enterprise-grade design patterns. This document explains the architectural decisions and how different components interact.
@@ -6,41 +11,12 @@ TAFLEX is built on a robust, extensible architecture that follows enterprise-gra
 
 TAFLEX follows these core principles:
 
-<div class="grid" markdown>
-
-<div markdown>
-
-### :material-strategy: Strategy Pattern
-
-Runtime driver resolution allows the same test code to run on Web, API, or Mobile without modification.
-
-</div>
-
-<div markdown>
-
-### :material-file-document: Separation of Concerns
-
-Test logic is completely decoupled from driver implementation and locator definitions.
-
-</div>
-
-<div markdown>
-
-### :material-cog: Configuration Over Code
-
-Behavior is controlled through external configuration, not hardcoded values.
-
-</div>
-
-<div markdown>
-
-### :material-test-tube: Test-First Design
-
-Every component is designed with testability in mind, following TDD principles.
-
-</div>
-
-</div>
+| Principle | Description |
+|-----------|-------------|
+| **🧩 Strategy Pattern** | Runtime driver resolution allows the same test code to run on Web, API, or Mobile without modification. |
+| **📄 Separation of Concerns** | Test logic is completely decoupled from driver implementation and locator definitions. |
+| **⚙️ Configuration Over Code** | Behavior is controlled through external configuration, not hardcoded values. |
+| **🧪 Test-First Design** | Every component is designed with testability in mind, following TDD principles. |
 
 ## High-Level Architecture
 
@@ -51,14 +27,14 @@ flowchart TB
         BT[BaseTest]
         TL[TestListener]
     end
-    
+
     subgraph "Framework Core"
         DF[DriverFactory]
         LF[LocatorFactory]
         CM[ConfigManager]
         DB[DatabaseManager]
     end
-    
+
     subgraph "Driver Strategies"
         direction TB
         ADS[AutomationDriver<br/>Interface]
@@ -66,47 +42,47 @@ flowchart TB
         APIS[ApiDriverStrategy]
         MDS[MobileDriverStrategy]
     end
-    
+
     subgraph "Element Wrappers"
         E[Element<br/>Interface]
         PE[PlaywrightElement]
         AE[ApiElement]
         ME[MobileElement]
     end
-    
+
     subgraph "Locator System"
         LS[LocatorStrategy<br/>Interface]
         PLS[PropertiesLocatorStrategy]
     end
-    
+
     subgraph "External Resources"
         PROP[.properties Files]
         DATA[Test Data]
         RP[ReportPortal]
     end
-    
+
     TC --> BT
     BT --> DF
     BT --> CM
     TC --> TL
-    
+
     DF --> ADS
     ADS --> PDS
     ADS --> APIS
     ADS --> MDS
-    
+
     PDS --> PE
     APIS --> AE
     MDS --> ME
-    
+
     TC --> LF
     LF --> LS
     LS --> PLS
     PLS --> PROP
-    
+
     TC --> DB
     DB --> DATA
-    
+
     TL --> RP
 ```
 
@@ -127,7 +103,7 @@ classDiagram
         +type(String, String)
         +findElement(String) Element
     }
-    
+
     class PlaywrightDriverStrategy {
         -Playwright playwright
         -Browser browser
@@ -135,28 +111,28 @@ classDiagram
         +initialize()
         +navigateTo(String)
     }
-    
+
     class ApiDriverStrategy {
         -CloseableHttpClient httpClient
         +get(String) ApiResponse
         +post(String, String) ApiResponse
     }
-    
+
     class MobileDriverStrategy {
         -AppiumDriver driver
         +swipe(int, int, int, int)
     }
-    
+
     AutomationDriver <|.. PlaywrightDriverStrategy
     AutomationDriver <|.. ApiDriverStrategy
     AutomationDriver <|.. MobileDriverStrategy
 ```
 
 **Key Benefits:**
-- :white_check_mark: Single test codebase for all platforms
-- :white_check_mark: Easy to add new driver types
-- :white_check_mark: Driver changes don't affect test code
-- :white_check_mark: Supports parallel execution with different drivers
+- ✅ Single test codebase for all platforms
+- ✅ Easy to add new driver types
+- ✅ Driver changes don't affect test code
+- ✅ Supports parallel execution with different drivers
 
 ### 2. Locator System
 
@@ -168,7 +144,7 @@ sequenceDiagram
     participant DF as DriverFactory
     participant PS as PropertiesLocatorStrategy
     participant File as .properties Files
-    
+
     Test->>DF: getDriver()
     DF->>PS: loadAllLocators()
     PS->>File: Read global.properties
@@ -179,7 +155,7 @@ sequenceDiagram
     File-->>PS: Page locators
     PS-->>DF: Locator cache ready
     DF-->>Test: Driver initialized
-    
+
     Test->>DF: click("login.button")
     DF->>PS: resolve("login.button")
     PS-->>DF: "#submit-btn"
@@ -224,28 +200,28 @@ sequenceDiagram
     participant Driver as Driver
     participant Test as Test Method
     participant Report as ReportPortal
-    
+
     Suite->>BT: @BeforeSuite
     BT->>BT: Initialize configuration
-    
+
     Suite->>BT: @BeforeMethod
     BT->>Driver: DriverFactory.getDriver()
     Driver->>Driver: initialize()
     Driver-->>BT: AutomationDriver
-    
+
     BT->>Test: Execute test
     Test->>Driver: Navigate, Click, Type...
     Driver->>Driver: Execute actions
-    
+
     alt Test Fails
         Test-->>BT: Exception
         BT->>Driver: captureScreenshot()
         BT->>Report: Log failure
     end
-    
+
     BT->>BT: @AfterMethod
     BT->>Driver: terminate()
-    
+
     Suite->>BT: @AfterSuite
     BT->>BT: Cleanup resources
 ```
@@ -259,21 +235,21 @@ flowchart LR
     subgraph "Test"
         TC[Test Case]
     end
-    
+
     subgraph "Data Sources"
         CSV[CSV Files]
         JSON[JSON Files]
         DB[Database]
         PROP[Properties]
     end
-    
+
     subgraph "Providers"
         TDP[TestDataProvider<br/>Interface]
         CP[CsvDataProvider]
         JP[JsonDataProvider]
         DP[DatabaseProvider]
     end
-    
+
     TC --> TDP
     TDP --> CP
     TDP --> JP
@@ -297,21 +273,21 @@ flowchart TB
         T3[Test Thread 3]
         T4[Test Thread 4]
     end
-    
+
     subgraph "Driver Instances"
         D1[Driver Instance 1]
         D2[Driver Instance 2]
         D3[Driver Instance 3]
         D4[Driver Instance 4]
     end
-    
+
     subgraph "Resources"
         B1[Browser 1]
         B2[Browser 2]
         B3[Browser 3]
         B4[Browser 4]
     end
-    
+
     T1 --> D1 --> B1
     T2 --> D2 --> B2
     T3 --> D3 --> B3
@@ -332,10 +308,10 @@ sequenceDiagram
     participant Test as TestNG Test
     participant TL as TestListener
     participant RP as ReportPortal
-    
+
     Test->>TL: onTestStart()
     TL->>RP: Start test item
-    
+
     Test->>TL: onTestSuccess() / onTestFailure()
     alt Success
         TL->>RP: Finish with PASSED
@@ -344,65 +320,20 @@ sequenceDiagram
         TL->>RP: Attach stack trace
         TL->>RP: Finish with FAILED
     end
-    
+
     TL->>RP: Log attachments
 ```
 
 ## Technology Stack
 
-<div class="grid" markdown>
-
-<div markdown>
-
-### Core Framework
-- **Java 23+** - Modern language features
-- **Gradle 8.5+** - Build automation
-- **TestNG 7.8+** - Test runner
-
-</div>
-
-<div markdown>
-
-### Web Testing
-- **Playwright 1.41+** - Browser automation
-- **Chromium/Firefox/WebKit** - Browser engines
-
-</div>
-
-<div markdown>
-
-### API Testing
-- **Apache HttpClient 4.5+** - HTTP client
-- **Jackson 2.16+** - JSON processing
-
-</div>
-
-<div markdown>
-
-### Mobile Testing
-- **Appium 9.0+** - Mobile automation
-- **Android/iOS** - Platform support
-
-</div>
-
-<div markdown>
-
-### Data & Reporting
-- **HikariCP 5.1+** - Connection pooling
-- **ReportPortal 5.3+** - Test reporting
-- **SLF4J + Logback** - Logging
-
-</div>
-
-<div markdown>
-
-### Utilities
-- **AssertJ 3.24+** - Assertions
-- **Apache Commons** - Utilities
-
-</div>
-
-</div>
+| Category | Technologies |
+|----------|-------------|
+| **Core Framework** | Java 23+, Gradle 8.5+, TestNG 7.8+ |
+| **Web Testing** | Playwright 1.41+, Chromium/Firefox/WebKit |
+| **API Testing** | Apache HttpClient 4.5+, Jackson 2.16+ |
+| **Mobile Testing** | Appium 9.0+, Android/iOS |
+| **Data & Reporting** | HikariCP 5.1+, ReportPortal 5.3+, SLF4J + Logback |
+| **Utilities** | AssertJ 3.24+, Apache Commons |
 
 ## Extensibility Points
 
@@ -486,10 +417,3 @@ db.pool.minIdle=2
 db.password=${DB_PASSWORD}
 api.auth.token=${API_TOKEN}
 ```
-
-## Next Steps
-
-- Learn about the [Strategy Pattern](strategy-pattern.md) in detail
-- Understand [Driver Architecture](drivers.md)
-- Explore the [Locator System](locators.md)
-- See [Data Flow](data-flow.md) in action

@@ -1,45 +1,27 @@
+---
+sidebar_position: 2
+title: Guide for Developers
+---
+
 # Guide for Developers
 
 This guide is for software developers who want to extend TAFLEX, create new test cases, or integrate the framework into their development workflow.
 
 ## Who This Guide Is For
 
-- :material-code-tags: Java developers writing test code
-- :material-git: SDETs (Software Development Engineers in Test)
-- :material-strategy: Architects designing test frameworks
-- :material-auto-fix: Developers maintaining test infrastructure
+- 💻 Java developers writing test code
+- 🔧 SDETs (Software Development Engineers in Test)
+- 🧩 Architects designing test frameworks
+- ⚙️ Developers maintaining test infrastructure
 
 ## Developer Responsibilities
 
-As a developer working with TAFLEX, you'll:
-
-<div class="grid cards" markdown>
-
--   :material-code-tags:{ .lg .middle } **Write Test Code**
-
-    ---
-
-    Implement test classes using the framework's APIs and patterns.
-
--   :material-wrench:{ .lg .middle } **Extend Framework**
-
-    ---
-
-    Add new driver strategies, utilities, and custom functionality.
-
--   :material-bug:{ .lg .middle } **Debug & Optimize**
-
-    ---
-
-    Troubleshoot failures, improve performance, and fix issues.
-
--   :material-git:{ .lg .middle } **Maintain Code**
-
-    ---
-
-    Refactor, review code, and ensure code quality standards.
-
-</div>
+| Area | Description |
+|------|-------------|
+| **Write Test Code** | Implement test classes using the framework's APIs and patterns. |
+| **Extend Framework** | Add new driver strategies, utilities, and custom functionality. |
+| **Debug & Optimize** | Troubleshoot failures, improve performance, and fix issues. |
+| **Maintain Code** | Refactor, review code, and ensure code quality standards. |
 
 ## Development Environment Setup
 
@@ -49,7 +31,7 @@ As a developer working with TAFLEX, you'll:
 
 ```bash
 # Clone repository
-git clone https://github.com/your-org/taflex.git
+git clone https://github.com/vinipx/taflex.git
 cd taflex
 
 # Open in IntelliJ
@@ -62,29 +44,6 @@ idea .
 - **Rainbow Brackets** - Better bracket visibility
 - **TestNG** - Test runner integration
 - **Material Theme UI** - Better UI theme
-
-#### IDE Settings
-
-```xml title=".idea/codeStyles/Project.xml"
-<code_scheme name="TAFLEX" version="173">
-  <JavaCodeStyleSettings>
-    <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="99" />
-    <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="99" />
-    <option name="IMPORT_LAYOUT_TABLE">
-      <value>
-        <package name="" withSubpackages="true" static="true" />
-        <emptyLine />
-        <package name="java" withSubpackages="true" static="false" />
-        <package name="javax" withSubpackages="true" static="false" />
-        <emptyLine />
-        <package name="" withSubpackages="true" static="false" />
-        <emptyLine />
-        <package name="io.github.vinipx" withSubpackages="true" static="false" />
-      </value>
-    </option>
-  </JavaCodeStyleSettings>
-</code_scheme>
-```
 
 ### 2. Project Structure Deep Dive
 
@@ -129,12 +88,12 @@ import static org.assertj.core.api.Assertions.*;
 
 /**
  * Login functionality tests.
- * 
+ *
  * @author Your Name
  * @since 1.0.0
  */
 public class LoginTests extends BaseTest {
-    
+
     @Test(
         groups = {"smoke", "regression"},
         description = "Verify successful login with valid credentials",
@@ -144,18 +103,18 @@ public class LoginTests extends BaseTest {
         // Given
         String username = "validuser";
         String password = "validpass";
-        
+
         // When
         driver.navigateTo("login.page.url");
         driver.type("login.username.field", username);
         driver.type("login.password.field", password);
         driver.click("login.submit.button");
-        
+
         // Then
         assertThat(driver.isVisible("dashboard.welcome.message"))
             .as("User should be redirected to dashboard after login")
             .isTrue();
-        
+
         assertThat(driver.getText("dashboard.user.name"))
             .as("Dashboard should display username")
             .contains(username);
@@ -177,15 +136,15 @@ public Object[][] loginCredentials() {
 
 @Test(dataProvider = "loginCredentials")
 public void shouldHandleLoginScenarios(
-        String username, 
-        String password, 
+        String username,
+        String password,
         boolean shouldSucceed) {
-    
+
     driver.navigateTo("login.page.url");
     driver.type("login.username.field", username);
     driver.type("login.password.field", password);
     driver.click("login.submit.button");
-    
+
     if (shouldSucceed) {
         assertThat(driver.isVisible("dashboard.welcome.message")).isTrue();
     } else {
@@ -201,22 +160,22 @@ While TAFLEX supports externalized locators, you can also use Page Objects:
 ```java
 public class LoginPage {
     private final AutomationDriver driver;
-    
+
     public LoginPage(AutomationDriver driver) {
         this.driver = driver;
     }
-    
+
     public LoginPage navigate() {
         driver.navigateTo("login.page.url");
         return this;
     }
-    
+
     public LoginPage enterCredentials(String username, String password) {
         driver.type("login.username.field", username);
         driver.type("login.password.field", password);
         return this;
     }
-    
+
     public DashboardPage clickLogin() {
         driver.click("login.submit.button");
         return new DashboardPage(driver);
@@ -230,7 +189,7 @@ public void shouldLoginWithPageObject() {
         .navigate()
         .enterCredentials("user", "pass")
         .clickLogin();
-    
+
     assertThat(dashboard.isLoaded()).isTrue();
 }
 ```
@@ -249,30 +208,29 @@ import io.github.vinipx.taflex.core.drivers.elements.Element;
  * Custom driver for desktop application testing using WinAppDriver.
  */
 public class DesktopDriverStrategy implements AutomationDriver {
-    
+
     private WindowsDriver windowsDriver;
     private LocatorStrategy locatorStrategy;
-    
+
     @Override
     public void initialize() {
-        // Initialize WinAppDriver
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability("app", ConfigManager.getProperty("desktop.app.path"));
-        
+
         windowsDriver = new WindowsDriver(
             new URL(ConfigManager.getProperty("winappdriver.url")),
             capabilities
         );
-        
+
         locatorStrategy = LocatorFactory.getLocatorStrategy();
     }
-    
+
     @Override
     public void click(String logicalName) {
         String selector = locatorStrategy.resolve(logicalName);
         windowsDriver.findElement(By.name(selector)).click();
     }
-    
+
     // ... implement other methods
 }
 ```
@@ -303,9 +261,9 @@ import org.testng.TestListenerAdapter;
  * Custom listener that sends notifications to Slack.
  */
 public class SlackNotificationListener extends TestListenerAdapter {
-    
+
     private SlackClient slackClient;
-    
+
     @Override
     public void onTestFailure(ITestResult result) {
         String message = String.format(
@@ -314,7 +272,7 @@ public class SlackNotificationListener extends TestListenerAdapter {
             result.getName(),
             result.getThrowable().getMessage()
         );
-        
+
         slackClient.sendMessage("#qa-alerts", message);
     }
 }
@@ -337,7 +295,7 @@ DatabaseManager db = DatabaseManager.getInstance();
 
 // Simple query
 List<Map<String, Object>> users = db.executeQuery(
-    "SELECT * FROM users WHERE status = ?", 
+    "SELECT * FROM users WHERE status = ?",
     "active"
 );
 
@@ -348,14 +306,14 @@ Boolean result = db.executeInTransaction(conn -> {
     );
     stmt1.setInt(1, userId);
     stmt1.executeUpdate();
-    
+
     PreparedStatement stmt2 = conn.prepareStatement(
         "INSERT INTO audit_log (action, user_id) VALUES (?, ?)"
     );
     stmt2.setString(1, "LOGIN");
     stmt2.setInt(2, userId);
     stmt2.executeUpdate();
-    
+
     return true;
 });
 ```
@@ -366,8 +324,7 @@ Boolean result = db.executeInTransaction(conn -> {
 @BeforeMethod
 public void setUpTestData() {
     DatabaseManager db = DatabaseManager.getInstance();
-    
-    // Create test user
+
     db.executeUpdate(
         "INSERT INTO users (username, email, status) VALUES (?, ?, ?)",
         "testuser", "test@example.com", "active"
@@ -377,8 +334,7 @@ public void setUpTestData() {
 @AfterMethod
 public void tearDownTestData() {
     DatabaseManager db = DatabaseManager.getInstance();
-    
-    // Clean up test data
+
     db.executeUpdate(
         "DELETE FROM users WHERE username = ?",
         "testuser"
@@ -412,8 +368,8 @@ Then attach debugger on port 5005.
 
 ### 4. View Playwright Trace
 
-```java
-// Enable tracing in config
+```properties
+# Enable tracing in config
 web.tracing.enabled=true
 ```
 
@@ -432,46 +388,6 @@ driver.click("button");
 driver.captureScreenshot("after-click");
 ```
 
-## Code Quality
-
-### Static Analysis
-
-Add SpotBugs to `build.gradle`:
-
-```groovy
-plugins {
-    id 'com.github.spotbugs' version '5.0.14'
-}
-
-spotbugs {
-    toolVersion = '4.7.3'
-    effort = com.github.spotbugs.snom.Effort.MAX
-    reportLevel = com.github.spotbugs.snom.Confidence.LOW
-}
-```
-
-### Code Coverage
-
-```groovy
-plugins {
-    id 'jacoco'
-}
-
-jacocoTestReport {
-    reports {
-        xml.required = true
-        html.required = true
-    }
-}
-```
-
-Generate report:
-
-```bash
-./gradlew test jacocoTestReport
-open build/reports/jacoco/test/html/index.html
-```
-
 ## CI/CD Integration
 
 ### GitHub Actions
@@ -484,102 +400,31 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up JDK 23
       uses: actions/setup-java@v3
       with:
         java-version: '23'
         distribution: 'corretto'
-    
+
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
-    
+
     - name: Create config
       run: cp automation.properties.template automation.properties
-    
+
     - name: Run tests
       run: ./gradlew smokeTest
-    
+
     - name: Upload reports
       uses: actions/upload-artifact@v3
       if: always()
       with:
         name: test-reports
         path: build/reports/
-```
-
-### Jenkins Pipeline
-
-```groovy
-pipeline {
-    agent any
-    
-    tools {
-        jdk 'JDK23'
-    }
-    
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-        
-        stage('Setup') {
-            steps {
-                sh './setup.sh'
-            }
-        }
-        
-        stage('Test') {
-            steps {
-                sh './gradlew smokeTest'
-            }
-        }
-    }
-    
-    post {
-        always {
-            publishTestResults testResultsPattern: 'build/test-results/**/*.xml'
-            archiveArtifacts artifacts: 'build/reports/**/*', allowEmptyArchive: true
-        }
-    }
-}
-```
-
-## Performance Optimization
-
-### 1. Parallel Execution
-
-```properties
-parallel.enabled=true
-parallel.threads=8
-```
-
-### 2. Driver Reuse
-
-```java
-// Cache driver instances
-@BeforeSuite
-public void globalSetup() {
-    // Initialize shared resources
-}
-
-@AfterSuite
-public void globalTeardown() {
-    DriverFactory.clearCache();
-}
-```
-
-### 3. Database Connection Pooling
-
-```properties
-db.pool.size=20
-db.pool.minIdle=5
-db.pool.maxLifetime=1800000
 ```
 
 ## Common Development Patterns
@@ -599,11 +444,11 @@ public void flakyTest() {
 @Test
 public void validatePage() {
     SoftAssertions softly = new SoftAssertions();
-    
+
     softly.assertThat(driver.isVisible("header")).isTrue();
     softly.assertThat(driver.isVisible("footer")).isTrue();
     softly.assertThat(driver.isVisible("sidebar")).isTrue();
-    
+
     softly.assertAll(); // Reports all failures at once
 }
 ```
@@ -614,17 +459,17 @@ public void validatePage() {
 @Test
 public void mobileOnlyTest() {
     assumeTrue(ConfigManager.getExecutionMode().equals("mobile"));
-    
+
     // Mobile-specific test logic
 }
 ```
 
 ## Resources
 
-- :material-book: [Effective Java](https://www.oreilly.com/library/view/effective-java-3rd/9780134686097/)
-- :material-test-tube: [TestNG Documentation](https://testng.org/doc/)
-- :material-git: [Git Best Practices](https://www.git-scm.com/doc)
-- :material-code-tags: [Java 23 Features](https://openjdk.org/projects/jdk/23/)
+- 📖 [Effective Java](https://www.oreilly.com/library/view/effective-java-3rd/9780134686097/)
+- 🧪 [TestNG Documentation](https://testng.org/doc/)
+- 🔧 [Git Best Practices](https://www.git-scm.com/doc)
+- 💻 [Java 23 Features](https://openjdk.org/projects/jdk/23/)
 
 ---
 

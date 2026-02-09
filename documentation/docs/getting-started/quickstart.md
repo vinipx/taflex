@@ -1,3 +1,8 @@
+---
+sidebar_position: 1
+title: Quick Start Guide
+---
+
 # Quick Start Guide
 
 Get up and running with TAFLEX in under 5 minutes.
@@ -6,18 +11,10 @@ Get up and running with TAFLEX in under 5 minutes.
 
 Before you begin, ensure you have the following installed:
 
-<div class="grid" markdown>
-
-<div markdown>
-
 ### Required
 
 - **Java 23+** - [Download from Adoptium](https://adoptium.net/)
 - **Gradle 8.5+** - Or use the included wrapper
-
-</div>
-
-<div markdown>
 
 ### Optional (for specific testing)
 
@@ -25,14 +22,10 @@ Before you begin, ensure you have the following installed:
 - **Docker** - For ReportPortal local setup
 - **Node.js** - Required for Appium
 
-</div>
-
-</div>
-
 ## Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/your-org/taflex.git
+git clone https://github.com/vinipx/taflex.git
 cd taflex
 ```
 
@@ -50,39 +43,43 @@ The setup script will:
 ./setup.sh
 ```
 
-??? success "Expected Output"
-    ```
-    ==========================================
-      TAFLEX - Framework Setup
-    ==========================================
-    
-    ℹ Detected OS: macos
-    
-    Checking Java installation...
-    ✓ Java 23.0.2 found (>= 23)
-    ℹ Using: /Users/username/Library/Java/JavaVirtualMachines/corretto-23.0.2/Contents/Home/bin/java
-    
-    Checking Gradle installation...
-    ✓ Gradle wrapper found
-    
-    Setting up configuration...
-    ✓ Created automation.properties from template
-    ! Please edit automation.properties with your environment settings
-    
-    Creating required directories...
-    ✓ Created: logs
-    ✓ Created: screenshots
-    
-    Resolving Gradle dependencies...
-    ✓ Dependencies resolved successfully
-    
-    Compiling test sources...
-    ✓ Compilation successful
-    
-    ==========================================
-      Setup Complete!
-    ==========================================
-    ```
+<details>
+<summary><strong>✅ Expected Output</strong></summary>
+
+```
+==========================================
+  TAFLEX - Framework Setup
+==========================================
+
+ℹ Detected OS: macos
+
+Checking Java installation...
+✓ Java 23.0.2 found (>= 23)
+ℹ Using: /Users/username/Library/Java/JavaVirtualMachines/corretto-23.0.2/Contents/Home/bin/java
+
+Checking Gradle installation...
+✓ Gradle wrapper found
+
+Setting up configuration...
+✓ Created automation.properties from template
+! Please edit automation.properties with your environment settings
+
+Creating required directories...
+✓ Created: logs
+✓ Created: screenshots
+
+Resolving Gradle dependencies...
+✓ Dependencies resolved successfully
+
+Compiling test sources...
+✓ Compilation successful
+
+==========================================
+  Setup Complete!
+==========================================
+```
+
+</details>
 
 ## Step 3: Configure Your Environment
 
@@ -110,12 +107,13 @@ web.base.url=https://your-app-url.com
 api.base.url=https://your-api-url.com
 ```
 
-??? tip "Multiple Environments"
-    You can maintain separate configuration files for different environments:
-    ```bash
-    cp automation.properties automation.staging.properties
-    cp automation.properties automation.production.properties
-    ```
+:::tip Multiple Environments
+You can maintain separate configuration files for different environments:
+```bash
+cp automation.properties automation.staging.properties
+cp automation.properties automation.production.properties
+```
+:::
 
 ## Step 4: Run Your First Test
 
@@ -145,41 +143,27 @@ After tests complete, check:
 - **Screenshots**: `screenshots/` (on failure)
 - **Logs**: `logs/test-automation.log`
 
-??? example "Open Reports"
-    ```bash
-    # macOS
-    open build/reports/tests/index.html
-    
-    # Linux
-    xdg-open build/reports/tests/index.html
-    
-    # Windows
-    start build/reports/tests/index.html
-    ```
+<details>
+<summary><strong>Open Reports</strong></summary>
+
+```bash
+# macOS
+open build/reports/tests/index.html
+
+# Linux
+xdg-open build/reports/tests/index.html
+
+# Windows
+start build/reports/tests/index.html
+```
+
+</details>
 
 ## Next Steps
 
-<div class="grid cards" markdown>
-
--   :material-book-open-variant:{ .lg .middle } **Read the Guides**
-
-    ---
-
-    Learn about [writing tests](first-test.md), [configuration options](configuration.md), and [best practices](../best-practices/test-design.md).
-
--   :material-code-tags:{ .lg .middle } **Explore Examples**
-
-    ---
-
-    Check out sample tests in `src/test/java/io.github.vinipx.taflex/tests/`.
-
--   :material-school:{ .lg .middle } **Understand Architecture**
-
-    ---
-
-    Learn how TAFLEX works under the hood in the [Architecture section](../architecture/overview.md).
-
-</div>
+- **Read the Guides** — Learn about [best practices](../best-practices/test-design.md) and explore the [architecture](../architecture/overview.md).
+- **Explore Examples** — Check out sample tests in `src/test/java/io.github.vinipx.taflex/tests/`.
+- **Understand Architecture** — Learn how TAFLEX works under the hood in the [Architecture section](../architecture/overview.md).
 
 ## Troubleshooting
 
@@ -236,4 +220,4 @@ Use the Gradle wrapper instead:
 
 ---
 
-**You're all set!** :material-party-popper: Start exploring TAFLEX and write your first test.
+**You're all set!** 🎉 Start exploring TAFLEX and write your first test.

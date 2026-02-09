@@ -1,45 +1,29 @@
+---
+sidebar_position: 1
+title: Guide for QA Engineers
+---
+
 # Guide for QA Engineers & Testers
 
 This guide is tailored for Quality Assurance professionals who want to use TAFLEX for automated testing without deep Java programming knowledge.
 
 ## Who This Guide Is For
 
-- :material-account: QA Engineers transitioning to automation
-- :material-account-multiple: Manual testers learning automation
-- :material-test-tube: Test analysts creating test scenarios
-- :material-clipboard-text: Quality coordinators managing test suites
+- 👤 QA Engineers transitioning to automation
+- 👥 Manual testers learning automation
+- 🧪 Test analysts creating test scenarios
+- 📋 Quality coordinators managing test suites
 
 ## Your Role in TAFLEX
 
 As a QA Engineer, you'll primarily work with:
 
-<div class="grid cards" markdown>
-
--   :material-file-document:{ .lg .middle } **Locator Files**
-
-    ---
-
-    Define and maintain element selectors in `.properties` files. No Java coding required!
-
--   :material-test-tube:{ .lg .middle } **Test Data**
-
-    ---
-
-    Create and manage test data in CSV, JSON, or database format.
-
--   :material-playlist-check:{ .lg .middle } **Test Suites**
-
-    ---
-
-    Organize tests into logical groups (smoke, regression, etc.).
-
--   :material-bug:{ .lg .middle } **Defect Reporting**
-
-    ---
-
-    Analyze test failures with automatic screenshots and logs.
-
-</div>
+| Area | Description |
+|------|-------------|
+| **📄 Locator Files** | Define and maintain element selectors in `.properties` files. No Java coding required! |
+| **🧪 Test Data** | Create and manage test data in CSV, JSON, or database format. |
+| **📝 Test Suites** | Organize tests into logical groups (smoke, regression, etc.). |
+| **🐛 Defect Reporting** | Analyze test failures with automatic screenshots and logs. |
 
 ## Quick Start for QAs
 
@@ -85,23 +69,20 @@ login.success.message=.success-toast
 
 Use browser DevTools to find element selectors:
 
-=== "Chrome/Firefox"
+**Chrome/Firefox:**
+1. Right-click element → Inspect
+2. Right-click in DevTools → Copy → Copy selector
+3. Paste into .properties file
 
-    1. Right-click element → Inspect
-    2. Right-click in DevTools → Copy → Copy selector
-    3. Paste into .properties file
+**Playwright Inspector:**
+```bash
+# Run with inspector
+./gradlew webTest -Dplaywright.inspect=true
+```
 
-=== "Playwright Inspector"
-
-    ```bash
-    # Run with inspector
-    ./gradlew webTest -Dplaywright.inspect=true
-    ```
-
-=== "Browser Extensions"
-
-    - **Chrome**: SelectorGadget, ChroPath
-    - **Firefox**: Firebug, Try Xpath
+**Browser Extensions:**
+- **Chrome**: SelectorGadget, ChroPath
+- **Firefox**: Firebug, Try Xpath
 
 #### Locator Best Practices
 
@@ -195,36 +176,11 @@ xdg-open build/reports/tests/index.html
 
 #### Reading the Report
 
-<div class="grid" markdown>
-
-<div markdown>
-
-**Green (Passed)**
-- Test completed successfully
-- All assertions passed
-- No exceptions thrown
-
-</div>
-
-<div markdown>
-
-**Red (Failed)**
-- Assertion failed
-- Element not found
-- Timeout occurred
-
-</div>
-
-<div markdown>
-
-**Yellow (Skipped)**
-- Test not executed
-- Dependency failed
-- Configuration issue
-
-</div>
-
-</div>
+| Status | Meaning |
+|--------|---------|
+| 🟢 **Passed** | Test completed successfully, all assertions passed, no exceptions thrown |
+| 🔴 **Failed** | Assertion failed, element not found, or timeout occurred |
+| 🟡 **Skipped** | Test not executed, dependency failed, or configuration issue |
 
 #### Screenshots on Failure
 
@@ -344,7 +300,7 @@ git push origin feature/new-checkout-flow
 
 ### 2. Naming Conventions
 
-**Locator Keys**:
+**Locator Keys:**
 ```properties
 # Format: {page}.{element}.{type}
 login.username.field       # ✓ Good
@@ -352,7 +308,7 @@ login.username             # ✗ Missing type
 usr                        # ✗ Not descriptive
 ```
 
-**Test Data Files**:
+**Test Data Files:**
 ```
 data/
 ├── users.csv              # User credentials
@@ -363,85 +319,11 @@ data/
     └── prod-users.csv
 ```
 
-### 3. Documentation
-
-Maintain a wiki or document with:
-
-- Locator key reference
-- Test data catalog
-- Known issues and workarounds
-- Environment details
-- Contact information
-
-## Troubleshooting for QAs
-
-### Locator Not Found
-
-**Symptoms**: Test fails with "Locator not found" error
-
-**Solutions**:
-1. Check spelling in .properties file
-2. Verify element exists on page
-3. Check if element is in iframe
-4. Wait for page to fully load
-
-### Test Passes Locally But Fails in CI
-
-**Possible Causes**:
-- Different browser versions
-- Timing issues (CI is slower)
-- Environment differences
-- Missing test data
-
-**Solutions**:
-1. Check environment configuration
-2. Add explicit waits
-3. Verify test data availability
-4. Review CI logs
-
-### Intermittent Failures
-
-**Common Causes**:
-- Race conditions
-- Dynamic content loading
-- Network latency
-- Resource contention
-
-**Solutions**:
-1. Add retry mechanism (already enabled by default)
-2. Increase timeout values
-3. Add explicit waits for dynamic content
-4. Check for resource leaks
-
-## Working with Developers
-
-### When You Need a New Test
-
-Provide developers with:
-
-1. **Test Scenario**: Clear description of what to test
-2. **Prerequisites**: Setup needed before test
-3. **Steps**: Detailed actions to perform
-4. **Expected Results**: What should happen
-5. **Test Data**: Required input data
-6. **Locators**: All element selectors needed
-
-### Code Review for Test Changes
-
-When developers modify tests:
-
-1. Review locator changes
-2. Verify test coverage
-3. Check for proper assertions
-4. Ensure error handling
-5. Validate data usage
-
 ## Resources
 
-- :material-book: [TestNG Documentation](https://testng.org/doc/)
-- :material-web: [CSS Selectors Guide](https://www.w3schools.com/cssref/css_selectors.php)
-- :material-bug: [Bug Reporting Best Practices](https://www.testlio.com/blog/the-ideal-bug-report/)
-- :material-chat: Internal Slack: #qa-automation
+- 📖 [TestNG Documentation](https://testng.org/doc/)
+- 🌐 [CSS Selectors Guide](https://www.w3schools.com/cssref/css_selectors.php)
+- 🐛 [Bug Reporting Best Practices](https://www.testlio.com/blog/the-ideal-bug-report/)
 
 ---
 

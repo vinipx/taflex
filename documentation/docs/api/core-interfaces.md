@@ -1,3 +1,8 @@
+---
+sidebar_position: 1
+title: Core Interfaces
+---
+
 # API Reference
 
 Complete API documentation for TAFLEX framework components.
@@ -10,81 +15,74 @@ The primary interface for all driver implementations.
 
 ```java
 public interface AutomationDriver {
-    
-    /**
-     * Initialize the driver with configuration from automation.properties
-     */
+
+    /** Initialize the driver with configuration from automation.properties */
     void initialize();
-    
-    /**
-     * Clean up and terminate the driver
-     */
+
+    /** Clean up and terminate the driver */
     void terminate();
-    
+
     /**
      * Get the native driver implementation
      * @return Native driver (Page for Playwright, CloseableHttpClient for API, AppiumDriver for Mobile)
      */
     <T> T getNativeDriver();
-    
+
     /**
      * Navigate to a URL (for Web/Mobile)
      * @param urlKey Key from locators file containing the URL
      */
     void navigateTo(String urlKey);
-    
+
     /**
      * Find an element using externalized locator
      * @param logicalName Logical name of the locator from properties file
      * @return Element wrapper
      */
     Element findElement(String logicalName);
-    
+
     /**
      * Click on an element
      * @param logicalName Logical name of the locator from properties file
      */
     void click(String logicalName);
-    
+
     /**
      * Type text into an element
      * @param logicalName Logical name of the locator from properties file
      * @param text Text to type
      */
     void type(String logicalName, String text);
-    
+
     /**
      * Get text from an element
      * @param logicalName Logical name of the locator from properties file
      * @return Text content
      */
     String getText(String logicalName);
-    
+
     /**
      * Check if element is visible
      * @param logicalName Logical name of the locator from properties file
      * @return true if visible
      */
     boolean isVisible(String logicalName);
-    
+
     /**
      * Wait for element to be visible
      * @param logicalName Logical name of the locator from properties file
      * @param timeoutSeconds Timeout in seconds
      */
     void waitForVisible(String logicalName, int timeoutSeconds);
-    
+
     /**
      * Capture screenshot
      * @param fileName Name for the screenshot file
      * @return Path to saved screenshot
      */
     String captureScreenshot(String fileName);
-    
-    /**
-     * Get the execution mode (web, api, mobile)
-     * @return Execution mode string
-     */
+
+    /** Get the execution mode (web, api, mobile) */
     String getExecutionMode();
 }
 ```
@@ -95,7 +93,7 @@ Unified interface for Web and Mobile elements.
 
 ```java
 public interface Element {
-    
+
     void click();
     void type(String text);
     void clear();
@@ -118,36 +116,27 @@ Strategy interface for resolving locators from external sources.
 
 ```java
 public interface LocatorStrategy {
-    
+
     /**
      * Resolve a logical locator name to an actual selector/path
      * @param logicalName The logical name (e.g., "login.username.field")
      * @return The resolved locator
      */
     String resolve(String logicalName);
-    
+
     /**
      * Load locators from a source
      * @param sourcePath Path to the locator source
      */
     void load(String sourcePath);
-    
-    /**
-     * Check if a locator exists
-     * @param logicalName The logical name to check
-     * @return true if the locator exists
-     */
+
+    /** Check if a locator exists */
     boolean hasLocator(String logicalName);
-    
-    /**
-     * Reload locators
-     */
+
+    /** Reload locators */
     void reload();
-    
-    /**
-     * Get the source type
-     * @return Source type identifier
-     */
+
+    /** Get the source type */
     String getSourceType();
 }
 ```
@@ -158,33 +147,20 @@ Factory class for creating driver instances.
 
 ```java
 public class DriverFactory {
-    
-    /**
-     * Get driver based on execution mode from automation.properties
-     */
+
+    /** Get driver based on execution mode from automation.properties */
     public static AutomationDriver getDriver();
-    
-    /**
-     * Get driver for specific execution mode
-     * @param mode Execution mode: "web", "api", or "mobile"
-     */
+
+    /** Get driver for specific execution mode */
     public static AutomationDriver getDriver(String mode);
-    
-    /**
-     * Get driver without caching (for parallel execution)
-     * @param mode Execution mode
-     */
+
+    /** Get driver without caching (for parallel execution) */
     public static AutomationDriver getDriverWithoutCache(String mode);
-    
-    /**
-     * Clear driver cache
-     */
+
+    /** Clear driver cache */
     public static void clearCache();
-    
-    /**
-     * Remove specific driver from cache
-     * @param mode Execution mode
-     */
+
+    /** Remove specific driver from cache */
     public static void removeFromCache(String mode);
 }
 ```
@@ -197,55 +173,16 @@ Central configuration management.
 
 ```java
 public class ConfigManager {
-    
-    /**
-     * Get property value as String
-     */
+
     public static String getProperty(String key);
-    
-    /**
-     * Get property value with default
-     */
     public static String getProperty(String key, String defaultValue);
-    
-    /**
-     * Get property as Integer
-     */
     public static int getIntProperty(String key);
-    
-    /**
-     * Get integer property with default
-     */
     public static int getIntProperty(String key, int defaultValue);
-    
-    /**
-     * Get property as Boolean
-     */
     public static boolean getBooleanProperty(String key);
-    
-    /**
-     * Get boolean property with default
-     */
     public static boolean getBooleanProperty(String key, boolean defaultValue);
-    
-    /**
-     * Get execution mode
-     */
     public static String getExecutionMode();
-    
-    /**
-     * Check if running in headless mode
-     */
     public static boolean isHeadless();
-    
-    /**
-     * Get timeout value
-     */
     public static int getTimeout();
-    
-    /**
-     * Reload configuration
-     */
     public static void reload();
 }
 ```
@@ -256,55 +193,35 @@ public class ConfigManager {
 
 ```java
 public class DatabaseManager {
-    
-    /**
-     * Get singleton instance
-     */
+
+    /** Get singleton instance */
     public static synchronized DatabaseManager getInstance();
-    
-    /**
-     * Get connection from pool
-     */
+
+    /** Get connection from pool */
     public Connection getConnection();
-    
-    /**
-     * Execute SELECT query
-     */
+
+    /** Execute SELECT query */
     public List<Map<String, Object>> executeQuery(String sql);
-    
-    /**
-     * Execute SELECT query with parameters
-     */
+
+    /** Execute SELECT query with parameters */
     public List<Map<String, Object>> executeQuery(String sql, Object... params);
-    
-    /**
-     * Execute INSERT, UPDATE, DELETE
-     */
+
+    /** Execute INSERT, UPDATE, DELETE */
     public int executeUpdate(String sql, Object... params);
-    
-    /**
-     * Execute query and return single value
-     */
+
+    /** Execute query and return single value */
     public Object executeScalar(String sql, Object... params);
-    
-    /**
-     * Execute batch
-     */
+
+    /** Execute batch */
     public int[] executeBatch(String sql, List<Object[]> batchParams);
-    
-    /**
-     * Execute within transaction
-     */
+
+    /** Execute within transaction */
     public <T> T executeInTransaction(TransactionCallback<T> callback);
-    
-    /**
-     * Close connection pool
-     */
+
+    /** Close connection pool */
     public static void closePool();
-    
-    /**
-     * Check if database is available
-     */
+
+    /** Check if database is available */
     public boolean isAvailable();
 }
 ```
@@ -340,7 +257,7 @@ DatabaseManager db = DatabaseManager.getInstance();
 
 // Query
 List<Map<String, Object>> users = db.executeQuery(
-    "SELECT * FROM users WHERE status = ?", 
+    "SELECT * FROM users WHERE status = ?",
     "active"
 );
 

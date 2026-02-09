@@ -121,6 +121,7 @@ appium.log
 
 # AI
 AGENTS.md
+.codemie/
 
 # Local environment
 .env
@@ -135,13 +136,13 @@ AGENTS.md
 !gradle-wrapper.jar
 !gradle-wrapper.properties
 
-# Documentation build
-docs/_build/
-docs/_static/
-docs/_templates/
+# Documentation build (Docusaurus)
+documentation/node_modules/
+documentation/build/
+documentation/.docusaurus/
+documentation/.cache-loader/
 
 # Docs preview (local)
-.venv-docs/
-.mkdocs-preview.pid
-.mkdocs-preview.addr
-.mkdocs-preview.log
+.docusaurus-preview.pid
+.docusaurus-preview.addr
+.docusaurus-preview.log
