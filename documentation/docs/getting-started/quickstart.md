@@ -13,7 +13,7 @@ Before you begin, ensure you have the following installed:
 
 ### Required
 
-- **Java 23+** - [Download from Adoptium](https://adoptium.net/)
+- **Java 21+** - [Download from Adoptium](https://adoptium.net/)
 - **Gradle 8.5+** - Or use the included wrapper
 
 ### Optional (for specific testing)
@@ -32,7 +32,7 @@ cd taflex
 ## Step 2: Run Setup Script
 
 The setup script will:
-- Verify Java 23+ installation
+- Verify Java 21+ installation
 - Check Gradle availability
 - Create the configuration file
 - Set up required directories
@@ -54,7 +54,7 @@ The setup script will:
 ℹ Detected OS: macos
 
 Checking Java installation...
-✓ Java 23.0.2 found (>= 23)
+✓ Java 21.0.x found (>= 21)
 ℹ Using: /Users/username/Library/Java/JavaVirtualMachines/corretto-23.0.2/Contents/Home/bin/java
 
 Checking Gradle installation...
@@ -162,7 +162,7 @@ start build/reports/tests/index.html
 ## Next Steps
 
 - **Read the Guides** — Learn about [best practices](../best-practices/test-design.md) and explore the [architecture](../architecture/overview.md).
-- **Explore Examples** — Check out sample tests in `src/test/java/io.github.vinipx.taflex/tests/`.
+- **Explore Examples** — Check out sample tests in `src/test/java/io/github/vinipx/tests/`.
 - **Understand Architecture** — Learn how TAFLEX works under the hood in the [Architecture section](../architecture/overview.md).
 
 ## Troubleshooting
@@ -170,7 +170,7 @@ start build/reports/tests/index.html
 <details>
 <summary><strong>Java version not found</strong></summary>
 
-Ensure Java 23+ is installed and in your PATH:
+Ensure Java 21+ is installed and in your PATH:
 
 ```bash
 java -version
@@ -179,7 +179,7 @@ java -version
 If not found, install from [Adoptium](https://adoptium.net/) and set JAVA_HOME:
 
 ```bash
-export JAVA_HOME=/path/to/java23
+export JAVA_HOME=/path/to/java21
 export PATH=$JAVA_HOME/bin:$PATH
 ```
 </details>

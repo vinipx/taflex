@@ -31,7 +31,7 @@ cat automation.properties | grep -v "^#" | grep -v "^$"
 
 **Symptoms:**
 ```
-✗ Java 23 or higher required. Found: 17.0.10
+✗ Java 21 or higher required. Found: 17.0.10
 ```
 
 **Solutions:**
@@ -43,7 +43,7 @@ Download from [Adoptium](https://adoptium.net/):
 brew install --cask temurin
 
 # Or download manually and set JAVA_HOME
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-23.jdk/Contents/Home
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home
 export PATH=$JAVA_HOME/bin:$PATH
 ```
 
@@ -51,7 +51,7 @@ Verify installation:
 
 ```bash
 java -version
-# Should show: openjdk version "23.0.x"
+# Should show: openjdk version "21.0.x"
 ```
 
 ### Issue: Gradle Permission Denied
@@ -355,7 +355,7 @@ If you can't resolve an issue:
 ## FAQ
 
 **Q: Can I use TAFLEX with multiple Java versions?**
-A: No, TAFLEX requires Java 23+. Use `jenv` or similar tools to manage versions.
+A: No, TAFLEX requires Java 21+. Use `jenv` or similar tools to manage versions.
 
 **Q: How do I run a single test method?**
 A: `./gradlew test --tests ClassName.methodName`

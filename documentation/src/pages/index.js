@@ -16,7 +16,7 @@ function HeroBanner() {
             Unified Test Automation Framework for Web, API &amp; Mobile
           </p>
           <p className={styles.heroDescription}>
-            A modern, enterprise-grade framework powered by Java 23+, the Strategy
+            A modern, enterprise-grade framework powered by Java 21+, the Strategy
             Pattern, and externalized configuration — delivering unified test
             orchestration across every platform with zero code changes.
           </p>
@@ -105,7 +105,7 @@ const coreFeatures = [
 ];
 
 const techStack = [
-  { name: 'Java 23+', desc: 'Latest LTS' },
+  { name: 'Java 21+', desc: 'Latest LTS' },
   { name: 'Playwright', desc: 'Web' },
   { name: 'Appium', desc: 'Mobile' },
   { name: 'TestNG', desc: 'Test Runner' },
@@ -261,7 +261,7 @@ export default function Home() {
   return (
     <Layout
       title="Enterprise Test Automation Framework"
-      description="TAFLEX — Unified, enterprise-grade test automation framework for Web, API, and Mobile. Java 23+, Strategy Pattern, externalized configuration."
+      description="TAFLEX — Unified, enterprise-grade test automation framework for Web, API, and Mobile. Java 21+, Strategy Pattern, externalized configuration."
     >
       <HeroBanner />
       <main>

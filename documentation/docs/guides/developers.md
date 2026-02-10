@@ -50,29 +50,37 @@ idea .
 ```
 taflex/
 ├── src/
-│   ├── main/java/com/enterprise/taflex/  ← Framework Code
+│   ├── main/java/io/github/vinipx/          ← Framework Code
 │   │   ├── core/
-│   │   │   ├── drivers/          # Driver implementations
+│   │   │   ├── drivers/          # Driver interfaces & implementations
+│   │   │   │   ├── strategies/   # PlaywrightDriverStrategy, ApiDriverStrategy, MobileDriverStrategy
+│   │   │   │   └── elements/     # Element, PlaywrightElement, ApiElement, MobileElement
 │   │   │   ├── locators/         # Locator strategies
-│   │   │   ├── config/           # Configuration management
-│   │   │   └── exceptions/       # Custom exceptions
-│   │   ├── database/             # Database utilities
-│   │   └── utils/                # Helper classes
+│   │   │   │   └── strategies/   # PropertiesLocatorStrategy
+│   │   │   ├── config/           # ConfigManager
+│   │   │   ├── data/             # TestDataProvider interface
+│   │   │   └── exceptions/       # DriverException, LocatorException
+│   │   └── database/             # DatabaseManager (HikariCP)
 │   │
-│   └── test/java/com/enterprise/taflex/  ← Test Code
-│       ├── base/                 # Base test classes
-│       ├── listeners/            # TestNG listeners
+│   └── test/java/io/github/vinipx/           ← Test Code
+│       ├── base/                 # BaseTest
+│       ├── listeners/            # TestListener, RetryAnalyzer, AnnotationTransformer
 │       └── tests/                # Test implementations
-│           ├── web/              # Web tests
-│           ├── api/              # API tests
-│           └── mobile/           # Mobile tests
+│           ├── web/              # LoginTests, DashboardTests
+│           ├── api/              # UserApiTests, OrderApiTests
+│           └── mobile/           # MobileLoginTests, MobileNavigationTests
 │
 ├── src/test/resources/           ← Test Resources
 │   ├── locators/                 # .properties files
-│   ├── testng/                   # Suite files
-│   └── data/                     # Test data
+│   │   ├── global.properties     # Common across all modes
+│   │   ├── web/common.properties # Web-specific locators
+│   │   ├── api/endpoints.properties  # API endpoints
+│   │   └── mobile/selectors.properties # Mobile selectors
+│   ├── testng/                   # Suite files (web, api, mobile, smoke, regression)
+│   └── data/                     # Test data files
 │
-└── docs/                         # Documentation
+└── documentation/               # Docusaurus documentation site
+```
 ```
 
 ## Writing Tests
@@ -404,10 +412,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up JDK 23
+    - name: Set up JDK 21
       uses: actions/setup-java@v3
       with:
-        java-version: '23'
+        java-version: '21'
         distribution: 'corretto'
 
     - name: Setup Gradle
@@ -469,7 +477,7 @@ public void mobileOnlyTest() {
 - 📖 [Effective Java](https://www.oreilly.com/library/view/effective-java-3rd/9780134686097/)
 - 🧪 [TestNG Documentation](https://testng.org/doc/)
 - 🔧 [Git Best Practices](https://www.git-scm.com/doc)
-- 💻 [Java 23 Features](https://openjdk.org/projects/jdk/23/)
+- 💻 [Java 21 Features](https://openjdk.org/projects/jdk/21/)
 
 ---
 

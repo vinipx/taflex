@@ -11,13 +11,13 @@ title: Introduction
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/vinipx/taflex/actions)
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/vinipx/taflex/releases)
 [![License](https://img.shields.io/badge/license-Apache%202.0-orange.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Java](https://img.shields.io/badge/Java-23+-red.svg)](https://java.oracle.com)
+[![Java](https://img.shields.io/badge/Java-21+-red.svg)](https://java.oracle.com)
 
 ---
 
 ## 🎯 What is TAFLEX?
 
-TAFLEX is a **unified, enterprise-grade test automation framework** designed for testing Web, API, and Mobile applications using a single codebase. Built with modern Java 23+, it leverages the Strategy Pattern to provide runtime driver resolution, making it incredibly flexible and maintainable.
+TAFLEX is a **unified, enterprise-grade test automation framework** designed for testing Web, API, and Mobile applications using a single codebase. Built with modern Java 21+, it leverages the Strategy Pattern to provide runtime driver resolution, making it incredibly flexible and maintainable.
 
 ### ✨ Key Highlights
 
@@ -174,7 +174,7 @@ public void shouldCreateUser() {
 | Role | Benefits |
 |------|----------|
 | **QA Engineers & Testers** | No coding required for basic tests · Externalized locators in plain text · Built-in retry and screenshot mechanisms · Rich reporting out of the box |
-| **Developers** | Clean, extensible architecture · Type-safe Java 23+ codebase · Easy to add new driver types · Full IDE support with IntelliJ |
+| **Developers** | Clean, extensible architecture · Type-safe Java 21+ codebase · Easy to add new driver types · Full IDE support with IntelliJ |
 | **Managers** | Single framework for all test types · Reduced maintenance overhead · Comprehensive reporting dashboards · Clear ROI metrics |
 | **DevOps Engineers** | Easy CI/CD integration · Docker support · Parallel execution · Environment-based configuration |
 
@@ -187,7 +187,7 @@ public void shouldCreateUser() {
 | **Unified Framework** | ✅ | ❌ | ❌ | ❌ |
 | **Web + API + Mobile** | ✅ | ❌ | ❌ | ❌ |
 | **Externalized Locators** | ✅ | Manual | ❌ | ❌ |
-| **Java 23+** | ✅ | 8+ | JS Only | ✅ |
+| **Java 21+** | ✅ | 8+ | JS Only | ✅ |
 | **Strategy Pattern** | ✅ | ❌ | ❌ | ❌ |
 | **ReportPortal** | Native | Plugin | Plugin | Plugin |
 | **Parallel Execution** | ✅ | Limited | ✅ | ✅ |

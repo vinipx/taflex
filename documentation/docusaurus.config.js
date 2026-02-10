@@ -102,14 +102,61 @@ const config = {
             label: "Documentation",
           },
           {
+            to: "/docs/getting-started/quickstart",
+            label: "Getting Started",
+            position: "left",
+          },
+          {
             to: "/docs/architecture/overview",
             label: "Architecture",
             position: "left",
           },
           {
             to: "/docs/api/core-interfaces",
-            label: "API",
+            label: "API Reference",
             position: "left",
+          },
+          {
+            type: "dropdown",
+            label: "Guides",
+            position: "left",
+            items: [
+              {
+                to: "/docs/guides/qa-engineers",
+                label: "QA Engineers",
+              },
+              {
+                to: "/docs/guides/developers",
+                label: "Developers",
+              },
+              {
+                to: "/docs/guides/managers",
+                label: "Managers",
+              },
+            ],
+          },
+          {
+            type: "dropdown",
+            label: "Resources",
+            position: "left",
+            items: [
+              {
+                to: "/docs/best-practices/test-design",
+                label: "Best Practices",
+              },
+              {
+                to: "/docs/troubleshooting/common-issues",
+                label: "Troubleshooting",
+              },
+              {
+                to: "/docs/contributing/guidelines",
+                label: "Contributing",
+              },
+              {
+                to: "/docs/changelog",
+                label: "Changelog",
+              },
+            ],
           },
           {
             href: "https://github.com/vinipx/taflex",

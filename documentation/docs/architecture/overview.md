@@ -328,7 +328,7 @@ sequenceDiagram
 
 | Category | Technologies |
 |----------|-------------|
-| **Core Framework** | Java 23+, Gradle 8.5+, TestNG 7.8+ |
+| **Core Framework** | Java 21+, Gradle 8.5+, TestNG 7.8+ |
 | **Web Testing** | Playwright 1.41+, Chromium/Firefox/WebKit |
 | **API Testing** | Apache HttpClient 4.5+, Jackson 2.16+ |
 | **Mobile Testing** | Appium 9.0+, Android/iOS |
