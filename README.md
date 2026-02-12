@@ -1,7 +1,4 @@
-<p align="center">
-  <img src="docs/assets/logo.svg" alt="TAFLEX Logo" width="320"/>
-</p>
-
+<h1 align="center">TAFLEX</h1>
 <p align="center">
   <a href="https://openjdk.org/">
     <img src="https://img.shields.io/badge/Java-21%2B-blue.svg" alt="Java Version"/>
