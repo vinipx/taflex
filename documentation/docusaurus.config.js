@@ -112,6 +112,35 @@ const config = {
             position: "left",
           },
           {
+            type: "dropdown",
+            label: "Tutorials",
+            position: "left",
+            items: [
+              { to: "/docs/tutorials/web-tests", label: "Web Testing" },
+              { to: "/docs/tutorials/bdd-tests", label: "BDD Testing" },
+              { to: "/docs/tutorials/api-tests", label: "API Testing" },
+              { to: "/docs/tutorials/mobile-tests", label: "Mobile Testing" },
+              { to: "/docs/tutorials/contract-testing", label: "Contract Testing" },
+              { to: "/docs/tutorials/cloud-execution", label: "Testing in the Cloud" },
+            ],
+          },
+          {
+            type: "dropdown",
+            label: "Core Guides",
+            position: "left",
+            items: [
+              { to: "/docs/guides/reporting", label: "Reporting" },
+              { to: "/docs/guides/code-quality", label: "Code Quality" },
+              { to: "/docs/guides/pact-testing", label: "Pact Testing" },
+              { to: "/docs/guides/locators", label: "Locators" },
+              { to: "/docs/guides/api-testing", label: "API Testing" },
+              { to: "/docs/guides/bdd-testing", label: "BDD Testing" },
+              { to: "/docs/guides/cloud-testing", label: "Cloud Testing" },
+              { to: "/docs/guides/database", label: "Database" },
+              { to: "/docs/guides/unit-testing", label: "Unit Testing" },
+            ],
+          },
+          {
             to: "/docs/api/core-interfaces",
             label: "API Reference",
             position: "left",
@@ -121,18 +150,9 @@ const config = {
             label: "Guides",
             position: "left",
             items: [
-              {
-                to: "/docs/guides/qa-engineers",
-                label: "QA Engineers",
-              },
-              {
-                to: "/docs/guides/developers",
-                label: "Developers",
-              },
-              {
-                to: "/docs/guides/managers",
-                label: "Managers",
-              },
+              { to: "/docs/guides/qa-engineers", label: "QA Engineers" },
+              { to: "/docs/guides/developers", label: "Developers" },
+              { to: "/docs/guides/managers", label: "Managers" },
             ],
           },
           {
@@ -140,22 +160,10 @@ const config = {
             label: "Resources",
             position: "left",
             items: [
-              {
-                to: "/docs/best-practices/test-design",
-                label: "Best Practices",
-              },
-              {
-                to: "/docs/troubleshooting/common-issues",
-                label: "Troubleshooting",
-              },
-              {
-                to: "/docs/contributing/guidelines",
-                label: "Contributing",
-              },
-              {
-                to: "/docs/changelog",
-                label: "Changelog",
-              },
+              { to: "/docs/best-practices/test-design", label: "Best Practices" },
+              { to: "/docs/troubleshooting/common-issues", label: "Troubleshooting" },
+              { to: "/docs/contributing/guidelines", label: "Contributing" },
+              { to: "/docs/changelog", label: "Changelog" },
             ],
           },
           {
@@ -174,7 +182,8 @@ const config = {
             items: [
               { label: "Getting Started", to: "/docs/getting-started/quickstart" },
               { label: "Architecture", to: "/docs/architecture/overview" },
-              { label: "API Reference", to: "/docs/api/core-interfaces" },
+              { label: "Tutorials", to: "/docs/tutorials/web-tests" },
+              { label: "Core Guides", to: "/docs/guides/reporting" },
             ],
           },
           {
@@ -183,6 +192,7 @@ const config = {
               { label: "QA Engineers", to: "/docs/guides/qa-engineers" },
               { label: "Developers", to: "/docs/guides/developers" },
               { label: "Managers", to: "/docs/guides/managers" },
+              { label: "API Reference", to: "/docs/api/core-interfaces" },
             ],
           },
           {
@@ -201,7 +211,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} TAFLEX — MIT License`,
+        copyright: `Copyright © ${new Date().getFullYear()} TAFLEX — Apache License 2.0`,
       },
 
       prism: {
