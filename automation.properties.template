@@ -130,6 +130,15 @@ reportportal.project=test_automation
 reportportal.launch=TAFLEX_Test_Run
 
 # ================================================
+# Allure Configuration
+# ================================================
+# Enable Allure results generation
+allure.enabled=true
+
+# Results directory
+allure.results.directory=build/allure-results
+
+# ================================================
 # Test Data Configuration
 # ================================================
 # Path to test data files

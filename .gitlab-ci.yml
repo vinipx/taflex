@@ -8,6 +8,7 @@ stages:
   - lint
   - build
   - test
+  - report
 
 before_script:
   - chmod +x gradlew
@@ -54,4 +55,18 @@ unit_tests:
     when: always
     paths:
       - build/reports/tests/
+      - build/allure-results/
     expire_in: 1 week
+
+allure_report:
+  stage: report
+  script:
+    - ./gradlew allureReport
+  artifacts:
+    when: always
+    paths:
+      - build/reports/allure-report/
+    expire_in: 1 week
+  only:
+    - main
+    - develop

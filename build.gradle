@@ -3,6 +3,7 @@ plugins {
     id 'idea'
     id 'checkstyle'
     id 'pmd'
+    id 'io.qameta.allure' version '2.11.2'
 }
 
 group = 'io.github.vinipx'
@@ -11,6 +12,13 @@ version = '1.0.0-SNAPSHOT'
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+allure {
+    version = '2.24.0'
+    useTestNG {
+        version = '2.24.0'
     }
 }
 

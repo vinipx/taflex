@@ -9,8 +9,31 @@ Depending on your project's maturity and requirements, you might want to use one
 | Tool | Primary Audience | Best For... | Why use it? |
 | :--- | :--- | :--- | :--- |
 | **Local HTML** | Developers / QAs | Local debugging | Fast, zero-config, included by default in TestNG. |
+| **Allure** | QA / Dev Teams | Sprint-level results | Beautiful interactive charts, history, and categories. |
 | **ReportPortal** | Managers / DevOps | Multi-project visibility | AI-powered failure analysis and cross-build trends. |
 | **Xray (Jira)** | Managers / POs | Requirements Traceability | Links automated results directly to Jira User Stories. |
+
+---
+
+## 📊 Allure Report
+
+Allure is an open-source framework designed to create interactive and easy-to-read reports.
+
+### Configuration
+Enable it in your `automation.properties`:
+```properties
+allure.enabled=true
+allure.results.directory=build/allure-results
+```
+
+### Generating Reports
+```bash
+# Generate report from results
+./gradlew allureReport
+
+# Serve report locally
+./gradlew allureServe
+```
 
 ---
 
