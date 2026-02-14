@@ -11,14 +11,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Service to interact with Xray Cloud API.
- * Ported from taflex-js.
+ * Service for interacting with the Xray Cloud API.
+ *
+ * <p>Provides authentication and results-import capabilities to link automated
+ * test executions with Jira/Xray issues.
  */
 public class XrayService {
+    
     private static final Logger logger = LoggerFactory.getLogger(XrayService.class);
-    private final String baseUrl = "https://xray.cloud.getxray.app/api/v2";
+    private static final String BASE_URL = "https://xray.cloud.getxray.app/api/v2";
+    
     private String token;
 
+    /**
+     * Authenticates with Xray Cloud using configured Client ID and Secret.
+     *
+     * <p>The token is stored internally for subsequent API calls in the same session.
+     */
     public void authenticate() {
         String clientId = ConfigManager.getProperty("xray.client.id");
         String clientSecret = ConfigManager.getProperty("xray.client.secret");
@@ -29,7 +38,7 @@ public class XrayService {
         }
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpPost request = new HttpPost(baseUrl + "/authenticate");
+            HttpPost request = new HttpPost(BASE_URL + "/authenticate");
             String json = String.format("{\"client_id\":\"%s\",\"client_secret\":\"%s\"}", clientId, clientSecret);
             request.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
 
@@ -45,12 +54,21 @@ public class XrayService {
         }
     }
 
+    /**
+     * Imports automated test execution results into Xray.
+     *
+     * @param resultsJson The execution results in Xray-compatible JSON format.
+     */
     public void importExecution(String resultsJson) {
-        if (token == null) authenticate();
-        if (token == null) return;
+        if (token == null) {
+            authenticate();
+        }
+        if (token == null) {
+            return;
+        }
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpPost request = new HttpPost(baseUrl + "/import/execution");
+            HttpPost request = new HttpPost(BASE_URL + "/import/execution");
             request.setHeader("Authorization", "Bearer " + token);
             request.setEntity(new StringEntity(resultsJson, ContentType.APPLICATION_JSON));
 

@@ -13,22 +13,29 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Database manager with connection pooling using HikariCP.
- * Provides SQL execution capabilities for test data setup and validation.
+ * Singleton database manager providing connection pooling and simplified SQL execution.
+ *
+ * <p>Uses HikariCP for high-performance connection pooling. Designed to assist in
+ * test data preparation, teardown, and database-state assertions during test execution.
  */
-public class DatabaseManager {
+public final class DatabaseManager {
     
     private static final Logger logger = LoggerFactory.getLogger(DatabaseManager.class);
     
     private static HikariDataSource dataSource;
     private static DatabaseManager instance;
     
+    /**
+     * Private constructor triggers the connection pool initialization.
+     */
     private DatabaseManager() {
         initializePool();
     }
     
     /**
-     * Get singleton instance
+     * Returns the singleton instance of the DatabaseManager.
+     *
+     * @return The DatabaseManager instance.
      */
     public static synchronized DatabaseManager getInstance() {
         if (instance == null) {
@@ -38,7 +45,7 @@ public class DatabaseManager {
     }
     
     /**
-     * Initialize connection pool
+     * Configures and starts the HikariCP connection pool using settings from properties.
      */
     private void initializePool() {
         String dbUrl = ConfigManager.getProperty("db.url");
@@ -58,15 +65,12 @@ public class DatabaseManager {
             config.setPassword(password);
             config.setMaximumPoolSize(poolSize);
             config.setMinimumIdle(2);
-            config.setIdleTimeout(300000); // 5 minutes
-            config.setConnectionTimeout(20000); // 20 seconds
-            config.setLeakDetectionThreshold(60000); // 1 minute
-            
-            // Pool name for monitoring
+            config.setIdleTimeout(300_000); // 5 minutes
+            config.setConnectionTimeout(20_000); // 20 seconds
+            config.setLeakDetectionThreshold(60_000); // 1 minute
             config.setPoolName("TAFLEXPool");
             
             dataSource = new HikariDataSource(config);
-            
             logger.info("Database connection pool initialized: {}", dbUrl);
             
         } catch (Exception e) {
@@ -76,7 +80,10 @@ public class DatabaseManager {
     }
     
     /**
-     * Get connection from pool
+     * Obtains a raw {@link Connection} from the pool.
+     *
+     * @return A database connection.
+     * @throws SQLException If the database is not configured or connection fails.
      */
     public Connection getConnection() throws SQLException {
         if (dataSource == null) {
@@ -86,19 +93,21 @@ public class DatabaseManager {
     }
     
     /**
-     * Execute SELECT query and return results as list of maps
-     * @param sql SQL query
-     * @return List of rows, each row is a map of column names to values
+     * Executes a SELECT query without parameters.
+     *
+     * @param sql The SQL query string.
+     * @return A list of rows, where each row is a Map of column names to values.
      */
     public List<Map<String, Object>> executeQuery(String sql) {
         return executeQuery(sql, new Object[0]);
     }
     
     /**
-     * Execute SELECT query with parameters
-     * @param sql SQL query with ? placeholders
-     * @param params Query parameters
-     * @return List of rows
+     * Executes a parameterized SELECT query.
+     *
+     * @param sql    The SQL query with '?' placeholders.
+     * @param params Values to bind to the placeholders.
+     * @return A list of result rows.
      */
     public List<Map<String, Object>> executeQuery(String sql, Object... params) {
         List<Map<String, Object>> results = new ArrayList<>();
@@ -106,7 +115,6 @@ public class DatabaseManager {
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            // Set parameters
             for (int i = 0; i < params.length; i++) {
                 stmt.setObject(i + 1, params[i]);
             }
@@ -125,7 +133,6 @@ public class DatabaseManager {
                     results.add(row);
                 }
             }
-            
             logger.debug("Query returned {} rows", results.size());
             
         } catch (SQLException e) {
@@ -137,25 +144,23 @@ public class DatabaseManager {
     }
     
     /**
-     * Execute INSERT, UPDATE, DELETE query
-     * @param sql SQL statement
-     * @param params Statement parameters
-     * @return Number of affected rows
+     * Executes an INSERT, UPDATE, or DELETE statement.
+     *
+     * @param sql    The SQL statement.
+     * @param params Values to bind to the statement.
+     * @return The number of rows affected.
      */
     public int executeUpdate(String sql, Object... params) {
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            // Set parameters
             for (int i = 0; i < params.length; i++) {
                 stmt.setObject(i + 1, params[i]);
             }
             
             logger.debug("Executing update: {}", sql);
-            
             int affectedRows = stmt.executeUpdate();
             logger.debug("Update affected {} rows", affectedRows);
-            
             return affectedRows;
             
         } catch (SQLException e) {
@@ -165,27 +170,26 @@ public class DatabaseManager {
     }
     
     /**
-     * Execute query and return single value
-     * @param sql SQL query
-     * @param params Query parameters
-     * @return Single value or null
+     * Executes a query expected to return a single value (e.g., COUNT).
+     *
+     * @param sql    The SQL query.
+     * @param params Query parameters.
+     * @return The first column value of the first row, or null if no results.
      */
     public Object executeScalar(String sql, Object... params) {
         List<Map<String, Object>> results = executeQuery(sql, params);
-        
         if (results.isEmpty()) {
             return null;
         }
-        
-        // Return first column of first row
         return results.get(0).values().iterator().next();
     }
     
     /**
-     * Execute batch insert/update
-     * @param sql SQL statement
-     * @param batchParams List of parameter arrays
-     * @return Array of update counts
+     * Executes multiple statements in a batch for high performance.
+     *
+     * @param sql         The template SQL statement.
+     * @param batchParams A list of parameter arrays, one for each execution.
+     * @return An array of update counts.
      */
     public int[] executeBatch(String sql, List<Object[]> batchParams) {
         try (Connection conn = getConnection();
@@ -201,12 +205,9 @@ public class DatabaseManager {
             }
             
             logger.debug("Executing batch of {} statements", batchParams.size());
-            
             int[] results = stmt.executeBatch();
             conn.commit();
-            
             logger.debug("Batch execution complete");
-            
             return results;
             
         } catch (SQLException e) {
@@ -216,15 +217,15 @@ public class DatabaseManager {
     }
     
     /**
-     * Execute within transaction
-     * @param callback Transaction callback
-     * @param <T> Return type
-     * @return Result from callback
+     * Executes a series of operations within a single database transaction.
+     *
+     * @param callback The logic to execute inside the transaction.
+     * @param <T>      The return type.
+     * @return The result of the callback.
      */
     public <T> T executeInTransaction(TransactionCallback<T> callback) {
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(false);
-            
             try {
                 T result = callback.doInTransaction(conn);
                 conn.commit();
@@ -233,7 +234,6 @@ public class DatabaseManager {
                 conn.rollback();
                 throw new RuntimeException("Transaction failed", e);
             }
-            
         } catch (SQLException e) {
             logger.error("Transaction execution failed", e);
             throw new RuntimeException("Transaction execution failed", e);
@@ -241,7 +241,7 @@ public class DatabaseManager {
     }
     
     /**
-     * Close connection pool
+     * Closes the connection pool and releases all resources.
      */
     public static void closePool() {
         if (dataSource != null && !dataSource.isClosed()) {
@@ -251,14 +251,14 @@ public class DatabaseManager {
     }
     
     /**
-     * Check if database is configured and available
-     * @return true if database is available
+     * Validates if the database connection is correctly configured and alive.
+     *
+     * @return true if database is accessible, false otherwise.
      */
     public boolean isAvailable() {
         if (dataSource == null) {
             return false;
         }
-        
         try (Connection conn = getConnection()) {
             return conn.isValid(5);
         } catch (SQLException e) {
@@ -267,10 +267,19 @@ public class DatabaseManager {
     }
     
     /**
-     * Transaction callback interface
+     * Functional interface for implementing transactional logic.
+     *
+     * @param <T> The result type.
      */
     @FunctionalInterface
     public interface TransactionCallback<T> {
+        /**
+         * Logic to be executed within a transaction context.
+         *
+         * @param conn The active database connection.
+         * @return The operation result.
+         * @throws SQLException On database error.
+         */
         T doInTransaction(Connection conn) throws SQLException;
     }
 }

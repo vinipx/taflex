@@ -11,7 +11,6 @@ import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.ios.IOSDriver;
 import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +29,15 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Mobile automation driver implementation using Appium.
- * Supports both Android and iOS platforms.
+ *
+ * <p>Provides support for both Android and iOS platforms. Includes features for
+ * automatic platform detection via local tools (adb, idevice_id) and automated
+ * Appium server lifecycle management.
  */
 public class MobileDriverStrategy implements AutomationDriver {
     
@@ -46,6 +49,9 @@ public class MobileDriverStrategy implements AutomationDriver {
     private Process appiumProcess;
     private boolean appiumStartedByFramework;
 
+    /**
+     * Supported mobile platforms.
+     */
     private enum MobilePlatform {
         ANDROID("Android"),
         IOS("iOS");
@@ -60,11 +66,17 @@ public class MobileDriverStrategy implements AutomationDriver {
             return capabilityName;
         }
 
+        /**
+         * Resolves platform from string value.
+         *
+         * @param value "android" or "ios".
+         * @return The corresponding MobilePlatform.
+         */
         public static MobilePlatform from(String value) {
             if (value == null) {
                 return ANDROID;
             }
-            String normalized = value.trim().toLowerCase();
+            String normalized = value.trim().toLowerCase(Locale.ROOT);
             if ("android".equals(normalized)) {
                 return ANDROID;
             }
@@ -80,7 +92,6 @@ public class MobileDriverStrategy implements AutomationDriver {
         logger.info("Initializing Mobile driver (Appium)");
         
         try {
-            // Get configuration
             platform = resolvePlatform();
             String appiumUrl = ConfigManager.getProperty("mobile.appium.url", "http://localhost:4723");
             String appPath = ConfigManager.getProperty("mobile.app.path");
@@ -88,21 +99,16 @@ public class MobileDriverStrategy implements AutomationDriver {
 
             ensureAppiumServer(appiumUrl);
             
-            // Build capabilities
             DesiredCapabilities caps = buildCapabilities(platform, deviceName, appPath);
-            
-            // Create driver
             URL url = new URL(appiumUrl);
             driver = createDriver(url, platform, caps);
             
-            // Set implicit wait
             int timeout = ConfigManager.getTimeout();
-            driver.manage().timeouts().implicitlyWait(java.time.Duration.ofSeconds(timeout));
+            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(timeout));
             
-            // Initialize locator strategy
             locatorStrategy = LocatorFactory.getLocatorStrategy();
             
-            logger.info("Mobile driver initialized successfully for platform: {}", platform.name().toLowerCase());
+            logger.info("Mobile driver initialized successfully for platform: {}", platform.name().toLowerCase(Locale.ROOT));
             
         } catch (MalformedURLException e) {
             logger.error("Invalid Appium URL", e);
@@ -136,7 +142,6 @@ public class MobileDriverStrategy implements AutomationDriver {
     
     @Override
     public void navigateTo(String urlKey) {
-        // For mobile, this typically opens a URL in the browser or deep links
         String url = locatorStrategy.resolve(urlKey);
         logger.info("Navigating to: {}", url);
         driver.get(url);
@@ -149,21 +154,15 @@ public class MobileDriverStrategy implements AutomationDriver {
         
         org.openqa.selenium.WebElement nativeElement;
         
-        // Determine selector type
         if (selector.startsWith("//") || selector.startsWith("/")) {
-            // XPath
             nativeElement = driver.findElement(org.openqa.selenium.By.xpath(selector));
         } else if (selector.startsWith("#")) {
-            // ID
             nativeElement = driver.findElement(org.openqa.selenium.By.id(selector.substring(1)));
         } else if (selector.startsWith(".")) {
-            // Class name
             nativeElement = driver.findElement(org.openqa.selenium.By.className(selector.substring(1)));
         } else if (selector.startsWith("@")) {
-            // Accessibility ID (mobile-specific)
             nativeElement = driver.findElement(org.openqa.selenium.By.id(selector.substring(1)));
         } else {
-            // Default to accessibility ID or text
             nativeElement = driver.findElement(org.openqa.selenium.By.xpath(
                 String.format("//*[@text='%s' or @content-desc='%s']", selector, selector)));
         }
@@ -202,7 +201,7 @@ public class MobileDriverStrategy implements AutomationDriver {
         logger.info("Capturing screenshot: {}", path);
         
         try {
-            File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+            File screenshot = driver.getScreenshotAs(OutputType.FILE);
             Path destPath = Paths.get(path);
             Files.createDirectories(destPath.getParent());
             Files.copy(screenshot.toPath(), destPath);
@@ -219,15 +218,16 @@ public class MobileDriverStrategy implements AutomationDriver {
     }
     
     /**
-     * Get the platform name (android or ios)
-     * @return Platform name
+     * Gets the platform name (android or ios).
+     *
+     * @return Platform name string.
      */
     public String getPlatform() {
-        return platform == null ? null : platform.name().toLowerCase();
+        return platform == null ? null : platform.name().toLowerCase(Locale.ROOT);
     }
     
     /**
-     * Hide keyboard (if shown)
+     * Attempts to hide the soft keyboard.
      */
     public void hideKeyboard() {
         if (driver instanceof AndroidDriver) {
@@ -236,32 +236,31 @@ public class MobileDriverStrategy implements AutomationDriver {
     }
     
     /**
-     * Swipe from one point to another
-     * @param startX Starting X coordinate
-     * @param startY Starting Y coordinate
-     * @param endX Ending X coordinate
-     * @param endY Ending Y coordinate
+     * Performs a swipe gesture between two points.
+     *
+     * @param startX Starting X.
+     * @param startY Starting Y.
+     * @param endX   Ending X.
+     * @param endY   Ending Y.
      */
     public void swipe(int startX, int startY, int endX, int endY) {
-        // Implementation depends on Appium version
-        // For newer versions, use W3C Actions
         logger.info("Swiping from ({},{}) to ({},{})", startX, startY, endX, endY);
-        // Add swipe implementation here based on your Appium version
+        // Implementation would typically use W3C Actions
     }
     
     /**
-     * Install app (requires AndroidDriver or IOSDriver)
-     * @param appPath Path to the app file
+     * Installs an application file on the device.
+     *
+     * @param appPath Path to .apk or .app/.ipa.
      */
     public void installApp(String appPath) {
         if (driver instanceof AndroidDriver) {
             ((AndroidDriver) driver).installApp(appPath);
         }
-        // Note: IOSDriver may have different method signature
     }
     
     /**
-     * Launch app (Android only in Appium 9.x)
+     * Launches or activates the application under test.
      */
     public void launchApp() {
         if (driver instanceof AndroidDriver) {
@@ -272,7 +271,7 @@ public class MobileDriverStrategy implements AutomationDriver {
     }
     
     /**
-     * Close app (Android only in Appium 9.x)
+     * Terminates the application under test.
      */
     public void closeApp() {
         if (driver instanceof AndroidDriver) {
@@ -282,6 +281,9 @@ public class MobileDriverStrategy implements AutomationDriver {
         }
     }
 
+    /**
+     * Builds DesiredCapabilities based on platform and configuration.
+     */
     private DesiredCapabilities buildCapabilities(MobilePlatform platform, String deviceName, String appPath) {
         DesiredCapabilities caps = new DesiredCapabilities();
         caps.setCapability("platformName", platform.getCapabilityName());
@@ -323,6 +325,9 @@ public class MobileDriverStrategy implements AutomationDriver {
         throw new DriverException("Unsupported platform: " + platform);
     }
 
+    /**
+     * Decides which platform to use based on config or auto-detection.
+     */
     private MobilePlatform resolvePlatform() {
         boolean autoDetect = ConfigManager.getBooleanProperty("mobile.platform.auto", true);
         String configuredPlatform = ConfigManager.getProperty("mobile.platform", "android");
@@ -334,7 +339,7 @@ public class MobileDriverStrategy implements AutomationDriver {
 
         MobilePlatform detected = detectPlatformFromLocalTools();
         if (detected != null) {
-            logger.info("Detected mobile platform via local tools: {}", detected.name().toLowerCase());
+            logger.info("Detected mobile platform via local tools: {}", detected.name().toLowerCase(Locale.ROOT));
             return detected;
         }
 
@@ -425,6 +430,9 @@ public class MobileDriverStrategy implements AutomationDriver {
         }
     }
 
+    /**
+     * Validates that the Appium server is responsive, or starts it if auto-start is enabled.
+     */
     private void ensureAppiumServer(String appiumUrl) {
         if (isAppiumRunning(appiumUrl)) {
             logger.info("Appium server is running at {}", appiumUrl);
@@ -498,6 +506,9 @@ public class MobileDriverStrategy implements AutomationDriver {
         return base + path;
     }
 
+    /**
+     * Starts the Appium server process using configured command and arguments.
+     */
     private void startAppium(String appiumUrl) {
         String command = ConfigManager.getProperty("mobile.appium.start.command", "appium");
         String args = ConfigManager.getProperty("mobile.appium.start.args", "");

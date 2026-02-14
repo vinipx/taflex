@@ -7,11 +7,30 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Ported from taflex-js.
- * Builds capabilities for cloud providers like BrowserStack and SauceLabs.
+ * Utility class for constructing remote execution capabilities.
+ *
+ * <p>Handles the creation of provider-specific capability objects for cloud grids
+ * like BrowserStack and SauceLabs based on framework configuration.
  */
-public class CapabilityBuilder {
+public final class CapabilityBuilder {
 
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private CapabilityBuilder() { }
+
+    /**
+     * Builds and returns web capabilities for the configured cloud platform.
+     *
+     * <p>If the platform is "local", an empty set of capabilities is returned.
+     * Supported platforms include:
+     * <ul>
+     *     <li>browserstack</li>
+     *     <li>saucelabs</li>
+     * </ul>
+     *
+     * @return A configured {@link MutableCapabilities} instance.
+     */
     public static MutableCapabilities buildWebCapabilities() {
         String platform = ConfigManager.getProperty("cloud.platform", "local");
         MutableCapabilities capabilities = new MutableCapabilities();

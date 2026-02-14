@@ -4,43 +4,51 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Strategy interface for test data providers.
- * Supports multiple data sources: CSV, Properties, JSON, Database, etc.
+ * Interface defining the contract for test data providers.
+ *
+ * <p>Implementations of this interface allow tests to load externalized data from
+ * various sources such as CSV files, JSON, Excel, or Databases. This promotes
+ * data-driven testing and decouples test logic from specific values.
  */
 public interface TestDataProvider {
     
     /**
-     * Load a single data record by ID
-     * @param dataSetId Identifier for the data set (e.g., "user.admin")
-     * @return Map of field names to values
+     * Loads a single data set (record) identified by its ID.
+     *
+     * @param dataSetId The unique identifier for the data set (e.g., "user.admin").
+     * @return A Map containing field names as keys and their corresponding values.
      */
     Map<String, String> load(String dataSetId);
     
     /**
-     * Load multiple records as a table
-     * @param tableId Identifier for the data table
-     * @return List of records, each as a field map
+     * Loads a table of multiple records identified by a table ID.
+     *
+     * @param tableId The identifier for the data table (e.g., "product_list").
+     * @return A List of Maps, where each Map represents a row in the table.
      */
     List<Map<String, String>> loadTable(String tableId);
     
      /**
-     * Get a specific value from a data set
-     * @param dataSetId Identifier for the data set
-     * @param fieldName Name of the field
-     * @return Field value
+     * Retrieves a specific value from a identified data set.
+     *
+     * @param dataSetId The identifier for the data set.
+     * @param fieldName The specific field/column name to retrieve.
+     * @return The field value as a String.
      */
     String getValue(String dataSetId, String fieldName);
     
     /**
-     * Check if a data set exists
-     * @param dataSetId Identifier for the data set
-     * @return true if exists
+     * Checks if a specific data set ID exists in the source.
+     *
+     * @param dataSetId The identifier to check.
+     * @return true if the data set exists, false otherwise.
      */
     boolean hasDataSet(String dataSetId);
     
     /**
-     * Get all available data set IDs
-     * @return List of data set identifiers
+     * Returns a list of all data set IDs available in the provider.
+     *
+     * @return A List of strings representing all valid dataSetId values.
      */
     List<String> getAvailableDataSets();
 }

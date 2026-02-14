@@ -6,7 +6,6 @@ import io.github.vinipx.taflex.core.locators.LocatorStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -19,8 +18,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Locator strategy that loads locators from .properties files.
- * Supports hierarchical loading: global → mode-specific → page-specific
+ * Default locator strategy that loads selectors from standard Java {@code .properties} files.
+ *
+ * <p>This strategy automatically loads and merges all properties files found in the
+ * relevant mode directory, supporting a clean hierarchy:
+ * <ol>
+ *     <li>global.properties</li>
+ *     <li>[mode]/common.properties</li>
+ *     <li>[mode]/*.properties (all other files in the mode directory)</li>
+ * </ol>
  */
 public class PropertiesLocatorStrategy implements LocatorStrategy {
     
@@ -29,8 +35,13 @@ public class PropertiesLocatorStrategy implements LocatorStrategy {
     
     private final Map<String, String> locatorCache;
     private final String executionMode;
+    
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private String sourcePath;
     
+    /**
+     * Initializes the strategy and triggers the full hierarchical loading sequence.
+     */
     public PropertiesLocatorStrategy() {
         this.locatorCache = new HashMap<>();
         this.executionMode = ConfigManager.getExecutionMode();
@@ -38,13 +49,13 @@ public class PropertiesLocatorStrategy implements LocatorStrategy {
     }
     
     /**
-     * Load locators from all relevant properties files
+     * Orchestrates the loading of properties files in the correct priority order.
      */
     private void loadAllLocators() {
         logger.info("Loading locators for execution mode: {}", executionMode);
         
         try {
-            // 1. Load global locators (common across all modes)
+            // 1. Load global locators
             loadLocatorFile(LOCATORS_BASE_PATH + "global.properties");
             
             // 2. Load mode-specific locators
@@ -62,7 +73,8 @@ public class PropertiesLocatorStrategy implements LocatorStrategy {
     }
     
     /**
-     * Load all page-specific locator files from mode directory
+     * Automatically discovers and loads all properties files in the mode directory.
+     * Skips files that have already been loaded (like common.properties).
      */
     private void loadAllPageLocators() {
         Path modeDir = Paths.get(LOCATORS_BASE_PATH + executionMode);
@@ -75,7 +87,7 @@ public class PropertiesLocatorStrategy implements LocatorStrategy {
         try (Stream<Path> paths = Files.list(modeDir)) {
             paths.filter(Files::isRegularFile)
                  .filter(p -> p.toString().endsWith(".properties"))
-                 .filter(p -> !p.getFileName().toString().equals("common.properties"))
+                 .filter(p -> !"common.properties".equals(p.getFileName().toString()))
                  .forEach(p -> loadLocatorFile(p.toString()));
         } catch (IOException e) {
             logger.error("Error loading page locators from: {}", modeDir, e);
@@ -83,7 +95,9 @@ public class PropertiesLocatorStrategy implements LocatorStrategy {
     }
     
     /**
-     * Load a single properties file
+     * Reads a single properties file and merges it into the local cache.
+     *
+     * @param filePath The path to the .properties file.
      */
     private void loadLocatorFile(String filePath) {
         Path path = Paths.get(filePath);
@@ -93,11 +107,10 @@ public class PropertiesLocatorStrategy implements LocatorStrategy {
             return;
         }
         
-        try (InputStream input = new FileInputStream(path.toFile())) {
+        try (InputStream input = Files.newInputStream(path)) {
             Properties props = new Properties();
             props.load(input);
             
-            // Add to cache (later files override earlier ones)
             props.forEach((key, value) -> {
                 String keyStr = key.toString();
                 String valueStr = value.toString();
@@ -145,14 +158,19 @@ public class PropertiesLocatorStrategy implements LocatorStrategy {
     }
     
     /**
-     * Get all loaded locators (for debugging)
+     * Retrieves a copy of the entire current locator cache.
+     *
+     * @return A map of all logical names to selectors.
      */
     public Map<String, String> getAllLocators() {
         return new HashMap<>(locatorCache);
     }
     
     /**
-     * Get locators matching a pattern
+     * Filters the cache for locators matching a partial logical name.
+     *
+     * @param pattern The substring to search for.
+     * @return A map containing only matching entries.
      */
     public Map<String, String> getLocatorsByPattern(String pattern) {
         return locatorCache.entrySet().stream()

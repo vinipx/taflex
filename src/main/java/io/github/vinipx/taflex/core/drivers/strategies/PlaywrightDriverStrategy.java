@@ -12,9 +12,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Paths;
+import java.util.Locale;
 
 /**
  * Web automation driver implementation using Microsoft Playwright.
+ *
+ * <p>Supports Chromium, Firefox, and WebKit browsers. Provides integrated
+ * support for headless execution, custom viewport sizes, and Playwright tracing
+ * for post-execution analysis.
  */
 public class PlaywrightDriverStrategy implements AutomationDriver {
     
@@ -35,8 +40,8 @@ public class PlaywrightDriverStrategy implements AutomationDriver {
             playwright = Playwright.create();
             
             // Get browser type from config
-            String browserType = ConfigManager.getProperty("web.browser", "chromium").toLowerCase();
-            boolean headless = ConfigManager.isHeadless();
+            String browserType = ConfigManager.getProperty("web.browser", "chromium").toLowerCase(Locale.ROOT);
+            boolean headless = ConfigManager.getBooleanProperty("web.headless", true);
             
             logger.info("Launching {} browser (headless: {})", browserType, headless);
             
@@ -77,7 +82,7 @@ public class PlaywrightDriverStrategy implements AutomationDriver {
             
             // Set default timeout
             int timeout = ConfigManager.getTimeout();
-            page.setDefaultTimeout(timeout * 1000);
+            page.setDefaultTimeout(timeout * 1000.0);
             
             // Initialize locator strategy
             locatorStrategy = LocatorFactory.getLocatorStrategy();
@@ -174,16 +179,18 @@ public class PlaywrightDriverStrategy implements AutomationDriver {
     }
     
     /**
-     * Get the Playwright Page object for advanced operations
-     * @return Page instance
+     * Retrieves the native Playwright {@code Page} instance for advanced interactions.
+     *
+     * @return The active Page instance.
      */
     public Page getPage() {
         return page;
     }
     
     /**
-     * Get the BrowserContext for advanced operations
-     * @return BrowserContext instance
+     * Retrieves the active Playwright {@code BrowserContext}.
+     *
+     * @return The active BrowserContext instance.
      */
     public BrowserContext getContext() {
         return context;

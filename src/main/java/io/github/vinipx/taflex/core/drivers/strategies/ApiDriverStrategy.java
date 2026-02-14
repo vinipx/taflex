@@ -25,7 +25,9 @@ import java.util.Map;
 
 /**
  * API automation driver implementation using Apache HttpClient.
- * Supports REST, SOAP, and gRPC (via HTTP/2).
+ *
+ * <p>Supports REST and SOAP web services. This strategy treats the response body
+ * as an interactable container via {@link ApiElement}.
  */
 public class ApiDriverStrategy implements AutomationDriver {
     
@@ -89,13 +91,18 @@ public class ApiDriverStrategy implements AutomationDriver {
     
     @Override
     public void navigateTo(String urlKey) {
-        // Not applicable for API tests, but could be used for health checks
         logger.warn("navigateTo() is not applicable for API driver");
     }
     
+    /**
+     * Returns an element wrapper for the last received API response.
+     *
+     * @param logicalName The field name or JSON path to interact with.
+     * @return An {@link ApiElement} instance.
+     * @throws DriverException If no request has been executed yet.
+     */
     @Override
     public Element findElement(String logicalName) {
-        // For API, this returns the response body or a specific field
         if (lastResponse == null) {
             throw new DriverException("No API response available. Execute a request first.");
         }
@@ -119,19 +126,16 @@ public class ApiDriverStrategy implements AutomationDriver {
     
     @Override
     public boolean isVisible(String logicalName) {
-        // For API, checks if field exists in response
         return findElement(logicalName).isVisible();
     }
     
     @Override
     public void waitForVisible(String logicalName, int timeoutSeconds) {
-        // Not applicable for API
         logger.warn("waitForVisible() is not applicable for API driver");
     }
     
     @Override
     public String captureScreenshot(String fileName) {
-        // Not applicable for API
         logger.warn("captureScreenshot() is not applicable for API driver");
         return null;
     }
@@ -142,19 +146,21 @@ public class ApiDriverStrategy implements AutomationDriver {
     }
     
     /**
-     * Execute GET request
-     * @param endpointKey Locator key for the endpoint path
-     * @return ApiResponse
+     * Executes a GET request to the specified endpoint.
+     *
+     * @param endpointKey Locator key for the relative endpoint path.
+     * @return The wrapped {@link ApiResponse}.
      */
     public ApiResponse get(String endpointKey) {
         return get(endpointKey, null);
     }
     
     /**
-     * Execute GET request with headers
-     * @param endpointKey Locator key for the endpoint path
-     * @param headers Additional headers
-     * @return ApiResponse
+     * Executes a GET request with custom headers.
+     *
+     * @param endpointKey Locator key for the endpoint.
+     * @param headers     Map of additional headers to include.
+     * @return The wrapped {@link ApiResponse}.
      */
     public ApiResponse get(String endpointKey, Map<String, String> headers) {
         String endpoint = locatorStrategy.resolve(endpointKey);
@@ -169,21 +175,23 @@ public class ApiDriverStrategy implements AutomationDriver {
     }
     
     /**
-     * Execute POST request
-     * @param endpointKey Locator key for the endpoint path
-     * @param body Request body (JSON string)
-     * @return ApiResponse
+     * Executes a POST request with a JSON body.
+     *
+     * @param endpointKey Locator key for the endpoint.
+     * @param body        The JSON payload string.
+     * @return The wrapped {@link ApiResponse}.
      */
     public ApiResponse post(String endpointKey, String body) {
         return post(endpointKey, body, null);
     }
     
     /**
-     * Execute POST request with headers
-     * @param endpointKey Locator key for the endpoint path
-     * @param body Request body
-     * @param headers Additional headers
-     * @return ApiResponse
+     * Executes a POST request with custom headers and body.
+     *
+     * @param endpointKey Locator key for the endpoint.
+     * @param body        The request payload.
+     * @param headers     Map of additional headers.
+     * @return The wrapped {@link ApiResponse}.
      */
     public ApiResponse post(String endpointKey, String body, Map<String, String> headers) {
         String endpoint = locatorStrategy.resolve(endpointKey);
@@ -202,10 +210,11 @@ public class ApiDriverStrategy implements AutomationDriver {
     }
     
     /**
-     * Execute PUT request
-     * @param endpointKey Locator key for the endpoint path
-     * @param body Request body
-     * @return ApiResponse
+     * Executes a PUT request with a body.
+     *
+     * @param endpointKey Locator key for the endpoint.
+     * @param body        The request payload.
+     * @return The wrapped {@link ApiResponse}.
      */
     public ApiResponse put(String endpointKey, String body) {
         String endpoint = locatorStrategy.resolve(endpointKey);
@@ -220,9 +229,10 @@ public class ApiDriverStrategy implements AutomationDriver {
     }
     
     /**
-     * Execute DELETE request
-     * @param endpointKey Locator key for the endpoint path
-     * @return ApiResponse
+     * Executes a DELETE request.
+     *
+     * @param endpointKey Locator key for the endpoint.
+     * @return The wrapped {@link ApiResponse}.
      */
     public ApiResponse delete(String endpointKey) {
         String endpoint = locatorStrategy.resolve(endpointKey);
@@ -235,10 +245,11 @@ public class ApiDriverStrategy implements AutomationDriver {
     }
     
     /**
-     * Execute PATCH request
-     * @param endpointKey Locator key for the endpoint path
-     * @param body Request body
-     * @return ApiResponse
+     * Executes a PATCH request with a body.
+     *
+     * @param endpointKey Locator key for the endpoint.
+     * @param body        The request payload.
+     * @return The wrapped {@link ApiResponse}.
      */
     public ApiResponse patch(String endpointKey, String body) {
         String endpoint = locatorStrategy.resolve(endpointKey);
@@ -253,9 +264,10 @@ public class ApiDriverStrategy implements AutomationDriver {
     }
     
     /**
-     * Execute any HttpUriRequest
-     * @param request The request to execute
-     * @return ApiResponse
+     * Dispatches the HTTP request and handles response capturing.
+     *
+     * @param request The Apache HttpClient request object.
+     * @return A custom ApiResponse wrapper.
      */
     private ApiResponse executeRequest(HttpUriRequest request) {
         try {
@@ -269,51 +281,56 @@ public class ApiDriverStrategy implements AutomationDriver {
         }
     }
     
+    /**
+     * Merges default headers with request-specific headers.
+     */
     private void addHeaders(HttpUriRequest request, Map<String, String> additionalHeaders) {
-        // Add default headers
         defaultHeaders.forEach(request::addHeader);
-        
-        // Add additional headers
         if (additionalHeaders != null) {
             additionalHeaders.forEach(request::addHeader);
         }
     }
     
     /**
-     * Get the last response received
-     * @return Last HttpResponse
+     * Retrieves the raw {@code HttpResponse} from the most recent execution.
+     *
+     * @return The last received response.
      */
     public HttpResponse getLastResponse() {
         return lastResponse;
     }
     
     /**
-     * Set default header for all requests
-     * @param name Header name
-     * @param value Header value
+     * Registers a header to be included in all subsequent requests.
+     *
+     * @param name  Header name.
+     * @param value Header value.
      */
     public void setDefaultHeader(String name, String value) {
         defaultHeaders.put(name, value);
     }
     
     /**
-     * API Response wrapper class
+     * High-level wrapper for HTTP responses to simplify assertions and data extraction.
      */
     public static class ApiResponse {
         private final int statusCode;
         private final String body;
         private final Map<String, String> headers;
         
+        /**
+         * Wraps an Apache HttpResponse.
+         *
+         * @param response The raw response to wrap.
+         */
         public ApiResponse(HttpResponse response) {
             this.statusCode = response.getStatusLine().getStatusCode();
             this.headers = new HashMap<>();
             
-            // Extract headers
             for (Header header : response.getAllHeaders()) {
                 headers.put(header.getName(), header.getValue());
             }
             
-            // Extract body
             HttpEntity entity = response.getEntity();
             if (entity != null) {
                 try {
@@ -342,6 +359,11 @@ public class ApiDriverStrategy implements AutomationDriver {
             return headers.get(name);
         }
         
+        /**
+         * Checks if the response code is 2xx.
+         *
+         * @return true if status is between 200 and 299.
+         */
         public boolean isSuccessful() {
             return statusCode >= 200 && statusCode < 300;
         }

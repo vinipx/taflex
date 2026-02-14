@@ -17,8 +17,15 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Locator strategy that loads locators from .json files.
- * Supports hierarchical merging: global.json -> [mode]/common.json -> [mode]/[page].json
+ * Locator strategy that loads and manages selectors from hierarchical JSON files.
+ *
+ * <p>This implementation supports merging multiple JSON files into a flat cache.
+ * It follows a fallback hierarchy:
+ * <ol>
+ *     <li>global.json (common across all platforms)</li>
+ *     <li>[mode]/common.json (common for specific mode like web/mobile)</li>
+ *     <li>[mode]/[page].json (specific to a page or feature)</li>
+ * </ol>
  */
 public class JsonLocatorStrategy implements LocatorStrategy {
     
@@ -28,9 +35,18 @@ public class JsonLocatorStrategy implements LocatorStrategy {
     private final Map<String, String> locatorCache = new HashMap<>();
     private final String executionMode;
 
+    /**
+     * Initializes the JSON strategy and performs an initial reload of locators.
+     */
     public JsonLocatorStrategy() {
         this.executionMode = ConfigManager.getExecutionMode();
-        reload();
+        initializeLocatorCache();
+    }
+
+    private void initializeLocatorCache() {
+        locatorCache.clear();
+        loadJsonFile(LOCATORS_BASE_PATH + "global.json");
+        loadJsonFile(LOCATORS_BASE_PATH + executionMode + "/common.json");
     }
 
     @Override
@@ -41,20 +57,27 @@ public class JsonLocatorStrategy implements LocatorStrategy {
         return locatorCache.get(logicalName);
     }
 
+    /**
+     * Loads locators for a specific page name, following the hierarchy rules.
+     *
+     * @param pageName The base name of the JSON file (without extension).
+     */
     @Override
     public void load(String pageName) {
-        // Hierarchical load: 
-        // 1. global.json
         loadJsonFile(LOCATORS_BASE_PATH + "global.json");
-        // 2. [mode]/common.json
         loadJsonFile(LOCATORS_BASE_PATH + executionMode + "/common.json");
-        // 3. [mode]/[page].json
         loadJsonFile(LOCATORS_BASE_PATH + executionMode + "/" + pageName + ".json");
     }
 
+    /**
+     * Parses a single JSON file and adds its contents to the flat cache.
+     * Overwrites existing keys if collisions occur.
+     */
     private void loadJsonFile(String filePath) {
         Path path = Paths.get(filePath);
-        if (!Files.exists(path)) return;
+        if (!Files.exists(path)) {
+            return;
+        }
 
         try {
             JsonNode rootNode = objectMapper.readTree(path.toFile());
@@ -65,6 +88,9 @@ public class JsonLocatorStrategy implements LocatorStrategy {
         }
     }
 
+    /**
+     * Recursively flattens nested JSON objects into dot-notation keys.
+     */
     private void flattenNode(String prefix, JsonNode node) {
         if (node.isObject()) {
             Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
@@ -85,9 +111,8 @@ public class JsonLocatorStrategy implements LocatorStrategy {
 
     @Override
     public void reload() {
-        locatorCache.clear();
-        loadJsonFile(LOCATORS_BASE_PATH + "global.json");
-        loadJsonFile(LOCATORS_BASE_PATH + executionMode + "/common.json");
+        logger.info("Reloading locators...");
+        initializeLocatorCache();
     }
 
     @Override

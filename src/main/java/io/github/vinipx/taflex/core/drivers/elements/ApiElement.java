@@ -10,8 +10,11 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
- * API-specific element wrapper for response bodies.
- * Allows accessing JSON fields as elements.
+ * API-specific implementation of the {@code Element} interface.
+ *
+ * <p>This class wraps an {@code HttpResponse} and allows treating parts of the JSON
+ * response body as interactable elements. It supports hierarchical field access
+ * using dot-notation (e.g., "user.profile.id").
  */
 public class ApiElement implements Element {
     
@@ -22,12 +25,23 @@ public class ApiElement implements Element {
     private final String logicalName;
     private final JsonNode jsonBody;
     
+    /**
+     * Constructs an ApiElement from an HTTP response.
+     *
+     * @param response    The Apache HttpClient response object.
+     * @param logicalName The name of the field to interact with, or dot-notation path.
+     */
     public ApiElement(HttpResponse response, String logicalName) {
         this.response = response;
         this.logicalName = logicalName;
         this.jsonBody = parseBody();
     }
     
+    /**
+     * Parses the response entity into a Jackson JsonNode for efficient field access.
+     *
+     * @return The root JsonNode, or null if the body is empty or unparsable.
+     */
     private JsonNode parseBody() {
         try {
             String body = EntityUtils.toString(response.getEntity());
@@ -42,9 +56,10 @@ public class ApiElement implements Element {
     }
     
     /**
-     * Get value from JSON using dot notation (e.g., "user.name")
-     * @param path Dot-notation path to the field
-     * @return Field value as string
+     * Navigates the JSON tree using a dot-notation path.
+     *
+     * @param path The path to the desired field (e.g., "data.items[0].name").
+     * @return The field value as a string, or null if the path is invalid.
      */
     public String getJsonValue(String path) {
         if (jsonBody == null) {
@@ -80,6 +95,11 @@ public class ApiElement implements Element {
         throw new UnsupportedOperationException("clear() is not supported for API elements");
     }
     
+    /**
+     * Returns either a specific field value (if logicalName is a path) or the entire body.
+     *
+     * @return The text representation of the response data.
+     */
     @Override
     public String getText() {
         // If logicalName contains a dot, treat it as JSON path
@@ -89,13 +109,19 @@ public class ApiElement implements Element {
         
         // Otherwise return entire body
         try {
-            return EntityUtils.toString(response.getEntity());
+            String body = EntityUtils.toString(response.getEntity());
+            return (body != null) ? body : "";
         } catch (IOException e) {
             logger.error("Failed to get response body", e);
             return null;
         }
     }
     
+    /**
+     * Checks if the logical name exists as a key in the JSON response.
+     *
+     * @return true if the field exists, false otherwise.
+     */
     @Override
     public boolean isVisible() {
         // For API, checks if the field exists in response
@@ -107,20 +133,24 @@ public class ApiElement implements Element {
     
     @Override
     public boolean isEnabled() {
-        // Not applicable for API
         return true;
     }
     
     @Override
     public boolean isSelected() {
-        // Not applicable for API
         return false;
     }
     
+    /**
+     * Retrieves metadata from the API response.
+     * Supports "statusCode" as a special attribute.
+     *
+     * @param attributeName The name of the metadata to retrieve.
+     * @return The attribute value or null.
+     */
     @Override
     public String getAttribute(String attributeName) {
-        // For API, could return headers or other metadata
-        if (attributeName.equalsIgnoreCase("statusCode")) {
+        if ("statusCode".equalsIgnoreCase(attributeName)) {
             return String.valueOf(response.getStatusLine().getStatusCode());
         }
         return null;
@@ -128,13 +158,11 @@ public class ApiElement implements Element {
     
     @Override
     public void waitForVisible(int timeoutSeconds) {
-        // Not applicable for API
         logger.warn("waitForVisible() is not applicable for API elements");
     }
     
     @Override
     public void waitForClickable(int timeoutSeconds) {
-        // Not applicable for API
         logger.warn("waitForClickable() is not applicable for API elements");
     }
     
@@ -155,24 +183,27 @@ public class ApiElement implements Element {
     }
     
     /**
-     * Get the HTTP status code
-     * @return Status code
+     * Retrieves the HTTP status code of the response.
+     *
+     * @return The status code (e.g., 200, 404).
      */
     public int getStatusCode() {
         return response.getStatusLine().getStatusCode();
     }
     
     /**
-     * Get the full JSON body
-     * @return JsonNode
+     * Returns the root JsonNode of the response body.
+     *
+     * @return The parsed JSON body.
      */
     public JsonNode getJsonBody() {
         return jsonBody;
     }
     
     /**
-     * Check if response is successful (2xx)
-     * @return true if successful
+     * Helper to verify if the status code indicates a successful request.
+     *
+     * @return true if code is in the 200-299 range.
      */
     public boolean isSuccessful() {
         int code = getStatusCode();

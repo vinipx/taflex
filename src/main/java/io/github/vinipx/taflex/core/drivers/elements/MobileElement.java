@@ -5,7 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Mobile-specific implementation of Element interface using Appium WebElement.
+ * Mobile-specific implementation of the {@code Element} interface using Appium.
+ *
+ * <p>Wraps a Selenium/Appium {@code WebElement} to provide a consistent interaction
+ * API for Android and iOS devices.
  */
 public class MobileElement implements Element {
     
@@ -14,6 +17,12 @@ public class MobileElement implements Element {
     private final WebElement element;
     private final String logicalName;
     
+    /**
+     * Constructs a MobileElement instance.
+     *
+     * @param element     The native Appium/Selenium WebElement.
+     * @param logicalName The logical name of the locator from properties.
+     */
     public MobileElement(WebElement element, String logicalName) {
         this.element = element;
         this.logicalName = logicalName;
@@ -75,10 +84,7 @@ public class MobileElement implements Element {
     @Override
     public void waitForVisible(int timeoutSeconds) {
         logger.debug("Waiting for element {} to be visible (timeout: {}s)", logicalName, timeoutSeconds);
-        // Appium doesn't have explicit wait methods on WebElement
-        // This would typically use WebDriverWait
-        // For simplicity, we'll check visibility
-        long endTime = System.currentTimeMillis() + (timeoutSeconds * 1000);
+        long endTime = System.currentTimeMillis() + (timeoutSeconds * 1000L);
         while (System.currentTimeMillis() < endTime) {
             if (element.isDisplayed()) {
                 return;
@@ -96,8 +102,7 @@ public class MobileElement implements Element {
     @Override
     public void waitForClickable(int timeoutSeconds) {
         logger.debug("Waiting for element {} to be clickable (timeout: {}s)", logicalName, timeoutSeconds);
-        // Similar to waitForVisible, but also check enabled
-        long endTime = System.currentTimeMillis() + (timeoutSeconds * 1000);
+        long endTime = System.currentTimeMillis() + (timeoutSeconds * 1000L);
         while (System.currentTimeMillis() < endTime) {
             if (element.isDisplayed() && element.isEnabled()) {
                 return;
@@ -120,27 +125,27 @@ public class MobileElement implements Element {
     
     @Override
     public void scrollIntoView() {
-        // For mobile, this might need platform-specific implementation
         logger.debug("Scrolling element {} into view", logicalName);
-        // Implementation depends on platform
+        // Implementation typically handled via swipe or specific Appium commands
     }
     
     @Override
     public void hover() {
-        // Hover is not typically used in mobile
         logger.warn("Hover is not applicable for mobile elements");
     }
     
     /**
-     * Get the underlying WebElement
-     * @return WebElement instance
+     * Retrieves the raw {@code WebElement} being wrapped.
+     *
+     * @return The underlying WebElement instance.
      */
     public WebElement getWebElement() {
         return element;
     }
     
     /**
-     * Tap on the element (mobile-specific)
+     * Performs a tap action on the element.
+     * Maps to a standard click in most Appium contexts.
      */
     public void tap() {
         logger.debug("Tapping element: {}", logicalName);
@@ -148,7 +153,8 @@ public class MobileElement implements Element {
     }
     
     /**
-     * Long press on the element
+     * Executes a long press action on the element.
+     * Useful for context menus or specific mobile interactions.
      */
     public void longPress() {
         logger.debug("Long pressing element: {}", logicalName);

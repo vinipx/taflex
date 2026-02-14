@@ -1,39 +1,48 @@
 package io.github.vinipx.taflex.core.locators;
 
 /**
- * Strategy interface for resolving locators from external sources.
- * Implementations can load from properties files, databases, or other sources.
+ * Strategy interface for externalizing and resolving UI and API locators.
+ *
+ * <p>Implementations of this interface allow the framework to load selectors,
+ * paths, and endpoints from external files (Properties, JSON) or databases,
+ * ensuring test code remains decoupled from the specific implementation of the SUT.
  */
 public interface LocatorStrategy {
     
     /**
-     * Resolve a logical locator name to an actual selector/path
-     * @param logicalName The logical name (e.g., "login.username.field")
-     * @return The resolved locator (e.g., "#username" or "//input[@id='username']")
+     * Resolves a logical locator name to an actual platform selector or path.
+     *
+     * @param logicalName The name defined in the test (e.g., "login.username.field").
+     * @return The resolved value (e.g., "#username" or "//input[@id='username']").
+     * @throws io.github.vinipx.taflex.core.exceptions.LocatorException If not found.
      */
     String resolve(String logicalName);
     
     /**
-     * Load locators from a source
-     * @param sourcePath Path to the locator source (e.g., file path, database connection)
+     * Explicitly loads locators from a specific source path.
+     *
+     * @param sourcePath The path to the locator source (e.g., file path).
      */
     void load(String sourcePath);
     
     /**
-     * Check if a locator exists
-     * @param logicalName The logical name to check
-     * @return true if the locator exists
+     * Checks if a specific logical name is present in the current locator cache.
+     *
+     * @param logicalName The name to verify.
+     * @return true if the locator exists, false otherwise.
      */
     boolean hasLocator(String logicalName);
     
     /**
-     * Reload locators (useful for dynamic locator updates)
+     * Reloads all locators from their respective sources.
+     * Useful for dynamic locator updates during a test run.
      */
     void reload();
     
     /**
-     * Get the source type (e.g., "properties", "database", "json")
-     * @return Source type identifier
+     * Returns the type identifier of this strategy.
+     *
+     * @return A string identifier (e.g., "properties", "json").
      */
     String getSourceType();
 }

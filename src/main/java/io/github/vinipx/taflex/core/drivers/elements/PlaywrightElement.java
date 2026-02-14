@@ -6,8 +6,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Playwright-specific implementation of Element interface.
- * Wraps Playwright Locator to provide unified API.
+ * Playwright-specific implementation of the {@code Element} interface.
+ *
+ * <p>Wraps a Playwright {@code Locator} to provide a high-level API for web interactions.
+ * Benefits from Playwright's auto-waiting and retry capabilities.
  */
 public class PlaywrightElement implements Element {
     
@@ -16,6 +18,12 @@ public class PlaywrightElement implements Element {
     private final Locator locator;
     private final String logicalName;
     
+    /**
+     * Constructs a PlaywrightElement.
+     *
+     * @param locator     The native Playwright Locator.
+     * @param logicalName The logical name of the element from the properties file.
+     */
     public PlaywrightElement(Locator locator, String logicalName) {
         this.locator = locator;
         this.logicalName = logicalName;
@@ -79,7 +87,7 @@ public class PlaywrightElement implements Element {
         logger.debug("Waiting for element {} to be visible (timeout: {}s)", logicalName, timeoutSeconds);
         locator.waitFor(new Locator.WaitForOptions()
             .setState(WaitForSelectorState.VISIBLE)
-            .setTimeout(timeoutSeconds * 1000));
+            .setTimeout(timeoutSeconds * 1000.0));
     }
     
     @Override
@@ -87,7 +95,7 @@ public class PlaywrightElement implements Element {
         logger.debug("Waiting for element {} to be clickable (timeout: {}s)", logicalName, timeoutSeconds);
         locator.waitFor(new Locator.WaitForOptions()
             .setState(WaitForSelectorState.VISIBLE)
-            .setTimeout(timeoutSeconds * 1000));
+            .setTimeout(timeoutSeconds * 1000.0));
     }
     
     @Override
@@ -109,16 +117,18 @@ public class PlaywrightElement implements Element {
     }
     
     /**
-     * Get the underlying Playwright Locator
-     * @return Locator instance
+     * Retrieves the underlying Playwright {@code Locator}.
+     *
+     * @return The native Locator instance.
      */
     public Locator getLocator() {
         return locator;
     }
     
     /**
-     * Get the logical name of this element
-     * @return Logical name
+     * Gets the logical name assigned to this element.
+     *
+     * @return The identifier string.
      */
     public String getLogicalName() {
         return logicalName;
