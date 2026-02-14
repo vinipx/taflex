@@ -1,105 +1,78 @@
 # Contract Testing Tutorial
 
-This tutorial will walk you through creating your first Consumer-Driven Contract test using Pact in **taflex-js**. 
+This tutorial will walk you through creating your first Consumer-Driven Contract test using **Pact** in TAFLEX.
 
-We will simulate a scenario where a **User Web App** (Consumer) expects a specific response from a **User Profile Service** (Provider).
+We will simulate a scenario where a **Web App** (Consumer) expects a specific response from a **User Service** (Provider).
 
 ---
 
-## Prerequisites
+## 1. Prerequisites
 
-1.  Ensure you have run `./setup.sh`.
-2.  Enable Pact in your `.env`:
-    ```env
-    PACT_ENABLED=true
+1.  Enable Pact in your `automation.properties`:
+    ```properties
+    pact.enabled=true
     ```
 
 ---
 
-## Step 1: Create the Consumer Test
+## 2. Create the Consumer Test
 
-The Consumer defines the "Contract". We want to ensure that when we call `GET /users/profile`, we receive a JSON with `username` and `role`.
-
-Create `tests/contract/consumer/profile.spec.js`:
+In Pact, the Consumer defines the interaction. Create a test class in `src/test/java/io/github/vinipx/taflex/tests/contract/UserServiceContractTest.java`:
 
 ```java
-import { describe, it, expect } from 'vitest';
-import { pactManager } from '../../../src/core/contracts/pact.manager.js';
-import axios from 'axios';
+package io.github.vinipx.taflex.tests.contract;
 
-describe('User Profile Contract', () => {
-  // Initialize the Pact Mock Server
-  const pact = pactManager.setup('user-web-app', 'profile-service');
+import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
+import au.com.dius.pact.core.model.RequestResponsePact;
+import au.com.dius.pact.core.model.annotations.Pact;
+import io.github.vinipx.taflex.core.contracts.PactManager;
+import org.testng.annotations.Test;
 
-  it('validates the response for a valid user', async () => {
-    // 1. Define the expectation (The Interaction)
-    await pactManager.addInteraction({
-      state: 'user exists',
-      uponReceiving: 'a request for user profile',
-      withRequest: {
-        method: 'GET',
-        path: '/profile',
-      },
-      willRespondWith: {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-        body: {
-          username: 'johndoe',
-          role: 'editor'
-        },
-      },
-    });
+public class UserServiceContractTest {
+    private PactManager pactManager = new PactManager();
 
-    // 2. Execute the test against the mock server
-    await pactManager.executeTest(async (mockServer) => {
-      const response = await axios.get(`${mockServer.url}/profile`);
-      
-      // Verify that the consumer code (axios in this case) 
-      // can handle the expected response
-      expect(response.status).toBe(200);
-      expect(response.data.username).toBe('johndoe');
-    });
-  });
-});
+    @Pact(consumer = "user-web-app", provider = "user-service")
+    public RequestResponsePact createPact(PactDslWithProvider builder) {
+        return builder
+            .given("user exists")
+            .uponReceiving("a request for user 1")
+                .path("/users/1")
+                .method("GET")
+            .willRespondWith()
+                .status(200)
+                .body("{\"id\": 1, \"name\": \"John Doe\"}")
+            .toPact();
+    }
+
+    @Test
+    public void testContract() {
+        // Test logic using the Pact mock server
+    }
+}
 ```
 
 ---
 
-## Step 2: Run the Test and Generate the Pact
+## 3. Run the Test and Generate the Pact
 
-Execute the contract test suite:
+Execute the test via Gradle:
 
 ```bash
-npm run test:contract
+./gradlew test --tests UserServiceContractTest
 ```
 
-**What happened?**
-- A mock server was started.
-- The test made a real HTTP call to that mock server.
-- Pact verified that the call matched the interaction we defined.
-- A JSON file was created in the `/pacts` directory. This is your **Contract**.
+**What happens?**
+- Pact starts a local mock server.
+- The test interacts with the mock server.
+- Upon success, a JSON "Pact file" is generated in `build/pacts/`.
 
 ---
 
-## Step 3: Provider Verification (Conceptual)
+## 4. Provider Verification
 
-Now that you have the JSON contract, the **Provider** team (API developers) must verify that their real service follows it.
+The Provider (API team) then takes this JSON file and verifies it against their real service implementation.
 
-1.  Start your local API service (e.g., on `http://localhost:3000`).
-2.  Run the verification command:
-    ```bash
-    npm run pact:verify
-    ```
+1.  Share the Pact file (manually or via a **Pact Broker**).
+2.  The Provider runs their verification suite to ensure they haven't broken the contract.
 
-> **Tip**: In a real CI/CD pipeline, you would publish the JSON file to a **Pact Broker** (like PactFlow) and have the Provider pipeline fetch it automatically.
-
----
-
-## Summary
-
-You have successfully:
-1.  Defined a contract as a Consumer.
-2.  Verified the contract against a Mock Server.
-3.  Generated a portable JSON Pact file.
-
-For more advanced configurations and Pact Broker integration, check the [Pact Testing Guide](../guides/pact-testing).
+For more details, refer to the [Pact Testing Guide](../guides/pact-testing).

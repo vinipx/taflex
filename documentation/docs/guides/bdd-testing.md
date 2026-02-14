@@ -1,75 +1,72 @@
 # BDD Testing
 
-TAFLEX JS supports Behavior-Driven Development (BDD) using Gherkin syntax through the `playwright-bdd` integration. This allows you to write tests in a human-readable format that can be shared with non-technical stakeholders.
+TAFLEX supports Behavior-Driven Development (BDD) using **Cucumber** and Gherkin syntax. This allows you to write tests in a human-readable format that serves as living documentation.
 
 ## Project Structure
 
-BDD tests are located in the `tests/bdd/` directory:
-- `features/`: Contains your `.feature` files (Gherkin).
-- `steps/`: Contains your JavaScript step definitions.
+BDD files are typically located in the `src/test/resources/features/` directory and step definitions in `src/test/java/io/github/vinipx/taflex/steps/`.
 
 ## Writing a Feature File
 
-Create a file ending in `.feature` in `tests/bdd/features/`:
+Create a file ending in `.feature`:
 
 ```gherkin
 Feature: User Login
 
+  @smoke
   Scenario: Successful login
-    Given I navigate to "https://example.com/login"
+    Given I navigate to "login.page.url"
     When I enter "myuser" as username and "mypass" as password
     And I click on the login button
-    Then I should see "Welcome" in the header
+    Then I should see the dashboard welcome message
 ```
 
 ## Writing Step Definitions
 
-Create a JavaScript file in `tests/bdd/steps/`. Use the `createBdd` function and the TAFLEX JS `test` fixture:
+Create a Java class for your step definitions. You can inject the `AutomationDriver` using the `DriverFactory`:
 
 ```java
-import { createBdd } from 'playwright-bdd';
-import { test, expect } from '../../fixtures.js';
+package io.github.vinipx.taflex.steps;
 
-const { Given, When, Then } = createBdd(test);
+import io.cucumber.java.en.*;
+import io.github.vinipx.taflex.core.drivers.AutomationDriver;
+import io.github.vinipx.taflex.core.drivers.DriverFactory;
+import org.testng.Assert;
 
-Given('I navigate to {string}', async ({ driver }, url) => {
-    driver.navigateTo(url);
-});
+public class LoginSteps {
+    private AutomationDriver driver = DriverFactory.getDriver();
 
-When('I enter {string} as username and {string} as password', async ({ driver }, user, pass) => {
-    driver.loadLocators('login');
-    await (driver.findElement('username')).fill(user);
-    await (driver.findElement('password')).fill(pass);
-});
+    @Given("I navigate to {string}")
+    public void navigateTo(String urlKey) {
+        driver.navigateTo(urlKey);
+    }
 
-When('I click on the login button', ({ driver }) => {
-    await (driver.findElement('login_btn')).click();
-});
+    @When("I enter {string} as username and {string} as password")
+    public void enterCredentials(String user, String pass) {
+        driver.type("login.username.field", user);
+        driver.type("login.password.field", pass);
+    }
 
-Then('I should see {string} in the header', async ({ driver }, expected) => {
-    const header = driver.findElement('header');
-    expect(await header.getText()).toContain(expected);
-});
+    @When("I click on the login button")
+    public void clickLogin() {
+        driver.click("login.submit.button");
+    }
+
+    @Then("I should see the dashboard welcome message")
+    public void verifyDashboard() {
+        Assert.assertTrue(driver.isVisible("dashboard.welcome.message"));
+    }
+}
 ```
 
 ## Running BDD Tests
 
-You can run BDD tests specifically using:
+The framework is configured to run Cucumber tests via TestNG. You can run them using the Gradle test task:
 
 ```bash
-npm run test:bdd
-```
-
-To run both standard and BDD tests together:
-
-```bash
-npm test
+./gradlew test -Dcucumber.options="src/test/resources/features"
 ```
 
 ## How it works
 
-TAFLEX JS uses a dual-project approach in Playwright:
-1. **`chromium` project**: Runs standard Playwright tests from `./tests`.
-2. **`bdd` project**: Runs generated tests from `.features-gen` (generated from your `.feature` files).
-
-Step definitions have full access to the TAFLEX JS `driver` fixture, allowing you to use hierarchical locators and the unified element API just like in standard tests.
+TAFLEX integrates Cucumber with TestNG. Step definitions have full access to the unified `AutomationDriver`, allowing you to use externalized locators and platform-agnostic interactions exactly like in standard scripted tests.

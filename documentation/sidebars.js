@@ -2,47 +2,36 @@
 const sidebars = {
   docs: [
     {
-      type: "doc",
-      id: "index",
-      label: "Introduction",
-    },
-    {
       type: "category",
-      label: "Getting Started",
+      label: "Documentation",
       collapsed: false,
-      items: ["getting-started/quickstart"],
-    },
-    {
-      type: "category",
-      label: "Architecture",
-      collapsed: false,
-      items: ["architecture/overview"],
-    },
-    {
-      type: "category",
-      label: "User Guides",
-      items: [
-        "guides/locators",
-        "guides/api-testing",
-        "guides/pact-testing",
-        "guides/reporting",
-        "guides/code-quality",
-        "guides/database",
-        "guides/qa-engineers",
-        "guides/developers",
-        "guides/managers",
-      ],
+      items: ["index", "getting-started/quickstart", "architecture/overview"],
     },
     {
       type: "category",
       label: "Tutorials",
       items: [
         "tutorials/web-tests",
+        "tutorials/bdd-tests",
         "tutorials/api-tests",
         "tutorials/mobile-tests",
         "tutorials/contract-testing",
         "tutorials/cloud-execution",
-        "tutorials/bdd-tests",
+      ],
+    },
+    {
+      type: "category",
+      label: "Core Guides",
+      items: [
+        "guides/reporting",
+        "guides/code-quality",
+        "guides/pact-testing",
+        "guides/locators",
+        "guides/api-testing",
+        "guides/bdd-testing",
+        "guides/cloud-testing",
+        "guides/database",
+        "guides/unit-testing",
       ],
     },
     {
@@ -52,23 +41,22 @@ const sidebars = {
     },
     {
       type: "category",
-      label: "Best Practices",
-      items: ["best-practices/test-design"],
+      label: "Guides",
+      items: [
+        "guides/qa-engineers",
+        "guides/developers",
+        "guides/managers",
+      ],
     },
     {
       type: "category",
-      label: "Troubleshooting",
-      items: ["troubleshooting/common-issues"],
-    },
-    {
-      type: "category",
-      label: "Contributing",
-      items: ["contributing/guidelines"],
-    },
-    {
-      type: "doc",
-      id: "changelog",
-      label: "Changelog",
+      label: "Resources",
+      items: [
+        "best-practices/test-design",
+        "troubleshooting/common-issues",
+        "contributing/guidelines",
+        "changelog",
+      ],
     },
   ],
 };

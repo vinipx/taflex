@@ -1,58 +1,73 @@
 # BDD Testing Tutorial
 
-In this tutorial, you will learn how to create and run a Behavior-Driven Development (BDD) test using Gherkin syntax.
+In this tutorial, you will learn how to create and run a Behavior-Driven Development (BDD) test using **Cucumber** and Gherkin syntax in TAFLEX.
+
+---
 
 ## 1. Create a Feature File
 
-Features are defined in `.feature` files using plain English. Create a file at `tests/bdd/features/google_search.feature`:
+Features are defined in `.feature` files using plain English. Create a file at `src/test/resources/features/google_search.feature`:
 
 ```gherkin
 Feature: Google Search
 
-  Scenario: Searching for TAFLEX JS
+  Scenario: Searching for TAFLEX Framework
     Given I navigate to "https://www.google.com"
-    When I search for "TAFLEX JS"
+    When I search for "TAFLEX Framework"
     Then I should see results related to "TAFLEX"
 ```
 
+---
+
 ## 2. Implement Step Definitions
 
-Step definitions bridge the Gherkin steps to actual code. Create `tests/bdd/steps/google.steps.js`:
+Step definitions bridge the Gherkin steps to actual Java code. Create `src/test/java/io/github/vinipx/taflex/steps/GoogleSteps.java`:
 
 ```java
-import { createBdd } from 'playwright-bdd';
-import { test, expect } from '../../fixtures.js';
+package io.github.vinipx.taflex.steps;
 
-const { Given, When, Then } = createBdd(test);
+import io.cucumber.java.en.*;
+import io.github.vinipx.taflex.core.drivers.AutomationDriver;
+import io.github.vinipx.taflex.core.drivers.DriverFactory;
+import org.testng.Assert;
 
-Given('I navigate to {string}', async ({ driver }, url) => {
-    driver.navigateTo(url);
-});
+public class GoogleSteps {
+    private AutomationDriver driver = DriverFactory.getDriver();
 
-When('I search for {string}', async ({ driver }, term) => {
-    driver.loadLocators('global'); // Using global locators
-    const searchInput = driver.findElement('search_input');
-    await searchInput.fill(term);
-    await searchInput.press('Enter');
-});
+    @Given("I navigate to {string}")
+    public void navigateTo(String url) {
+        // You can use a raw URL or a locator key
+        driver.getNativeDriver().navigate(url);
+    }
 
-Then('I should see results related to {string}', async ({ driver }, expected) => {
-    // Assertions using TAFLEX JS unified element API
-    const body = driver.page.textContent('body');
-    expect(body).toContain(expected);
-});
+    @When("I search for {string}")
+    public void searchFor(String term) {
+        driver.type("search.input.field", term);
+        driver.click("search.submit.button");
+    }
+
+    @Then("I should see results related to {string}")
+    public void verifyResults(String expected) {
+        String content = driver.getText("search.results.container");
+        Assert.assertTrue(content.contains(expected));
+    }
+}
 ```
+
+---
 
 ## 3. Run the Test
 
-Execute the BDD-specific test command:
+Execute the BDD tests using the Gradle test task with Cucumber options:
 
 ```bash
-npm run test:bdd
+./gradlew test -Dcucumber.options="src/test/resources/features"
 ```
+
+---
 
 ## Key Benefits of this Approach
 
-1. **Shared State**: The `driver` fixture is shared between all steps in a scenario.
-2. **Locator Management**: You can use `driver.loadLocators()` within any step to fetch your JSON-based selectors.
-3. **Enterprise Reporting**: BDD scenarios appear beautifully in Allure and ReportPortal, showing each Gherkin step as a test phase.
+1. **Shared State**: The `AutomationDriver` is easily accessible via the `DriverFactory` singleton.
+2. **Locator Management**: Use your `.properties` files within steps to keep selectors out of your Java code.
+3. **Professional Reporting**: Cucumber integration with TestNG allows for beautiful HTML reports and integration with tools like ReportPortal.

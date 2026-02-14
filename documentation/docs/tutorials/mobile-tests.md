@@ -1,62 +1,68 @@
 # Mobile Testing Tutorial
 
-Learn how to automate native and hybrid mobile applications using TAFLEX JS and WebdriverIO (Appium).
+Learn how to automate native mobile applications using TAFLEX and **Appium**.
+
+---
 
 ## 1. Environment Setup
 
-Mobile testing requires the `mobile` strategy. Ensure you have Appium installed and running locally or have access to a cloud lab.
+Mobile testing requires the `mobile` strategy. Ensure you have the Appium server installed and reachable.
 
-### Capabilities Configuration
-Mobile tests require specific capabilities (platform name, device name, app path, etc).
+### Configuration
+Update your `automation.properties` with device and app details:
 
-```java
-// Example mobile config for driver.initialize()
-const mobileConfig = {
-    capabilities: {
-        platformName: 'Android',
-        'appium:deviceName': 'Pixel_6',
-        'appium:app': './apps/my-app.apk',
-        'appium:automationName': 'UiAutomator2'
-    }
-};
+```properties
+execution.mode=mobile
+mobile.platform=android
+mobile.device.name=Pixel_6
+mobile.app.path=/path/to/my-app.apk
+mobile.appium.url=http://localhost:4723
 ```
+
+---
 
 ## 2. Writing a Mobile Test
 
-Set the `mode: 'mobile'` in your spec to use the WebdriverIO-based strategy.
+Create a test class extending `BaseTest`. The framework handles the Appium driver lifecycle automatically.
 
 ```java
-import { test, expect } from '../fixtures.js';
+package io.github.vinipx.taflex.tests.mobile;
 
-test.describe('Mobile App Login', () => {
-    test.use({ mode: 'mobile' });
+import io.github.vinipx.taflex.base.BaseTest;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-    test('should login on Android', ({ driver }) => {
-        // Load mobile-specific locators
-        driver.loadLocators('login');
+public class LoginMobileTests extends BaseTest {
 
-        const userField = driver.findElement('username_input');
-        const passField = driver.findElement('password_input');
-        const loginBtn = driver.findElement('submit_button');
+    @Test(groups = {"smoke", "mobile"})
+    public void shouldLoginOnMobile() {
+        // 1. Use externalized mobile locators
+        driver.type("mobile.login.user", "mobile_user");
+        driver.type("mobile.login.pass", "secret_pass");
+        driver.click("mobile.login.button");
 
-        await userField.fill('mobile_user');
-        await passField.fill('secret_pass');
-        await loginBtn.click();
-
-        const welcome = driver.findElement('welcome_text');
-        expect(await welcome.isVisible()).toBeTruthy();
-    });
-});
+        // 2. Assert visibility using unified API
+        Assert.assertTrue(driver.isVisible("mobile.dashboard.welcome"));
+    }
+}
 ```
+
+---
 
 ## 3. Best Practices
 
-- **Selectors**: Use `accessibility id` (ID) or `Xpath` carefully. In TAFLEX JS, store these in `src/resources/locators/mobile/`.
-- **Platform Branching**: If your app logic differs significantly between iOS and Android, create separate locator files (e.g., `login_ios.json`, `login_android.json`) and load the correct one at runtime.
-- **Wait Strategies**: Mobile networks and devices can be slow. Use `await element.waitFor()` before critical actions.
+- **Selectors**: Use **Accessibility IDs** whenever possible for better reliability and performance.
+- **Wait Strategies**: Mobile interactions can be slower than web. Use `driver.waitForVisible()` for key transitions.
+- **Platform Agnostic**: While the locators differ, keep your test logic as platform-agnostic as possible by leveraging the `AutomationDriver` interface.
 
-## Execution on Real Devices (Cloud)
+---
 
-While local emulators are great for development, TAFLEX JS allows you to run these tests on **real devices** via BrowserStack and SauceLabs.
+## 4. Running Mobile Tests
 
-See the [Cloud Execution Tutorial](./cloud-execution.md) to learn how to configure your credentials and target real devices.
+Use the dedicated Gradle task:
+
+```bash
+./gradlew mobileTest
+```
+
+To run on real devices in the cloud (BrowserStack/SauceLabs), simply update your `automation.properties` as described in the [Cloud Execution Tutorial](./cloud-execution.md).

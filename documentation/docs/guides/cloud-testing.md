@@ -1,49 +1,49 @@
 # Cloud Testing Guide
 
-Taflex JS provides native integration with industry-leading cloud testing platforms like **BrowserStack** and **SauceLabs**. This allows you to scale your test execution across a vast array of browser/OS combinations and real mobile devices without managing your own infrastructure.
+TAFLEX provides native integration with industry-leading cloud testing platforms like **BrowserStack** and **SauceLabs**. This allows you to scale your test execution across a vast array of browser/OS combinations and real mobile devices.
 
 ## 🚀 Why Use Cloud Testing?
 
-- **Zero Infrastructure**: No need to maintain local browser versions or mobile emulators.
+- **Infrastructure Agnostic**: No need to maintain local browser versions or mobile emulators.
 - **Parallel Execution**: Run tests simultaneously across multiple configurations.
-- **Real Devices**: Test your mobile applications on actual physical hardware.
-- **Debugging Tools**: Access video recordings, network logs, and screenshots of every test session.
+- **Real Devices**: Test your mobile applications on actual physical hardware in the cloud.
+- **Rich Debugging**: Access video recordings, network logs, and screenshots of every test session.
 
 ## 🛠️ Configuration
 
-To enable cloud execution, update your `.env` file with the following parameters:
+To enable cloud execution, update your `automation.properties` file with the following parameters:
 
 ### Common Settings
 
-```bash
+```properties
 # Set the platform (local, browserstack, saucelabs)
-CLOUD_PLATFORM=browserstack
+cloud.platform=browserstack
 
 # Your cloud credentials
-CLOUD_USER=your_username
-CLOUD_KEY=your_access_key
+cloud.user=your_username
+cloud.key=your_access_key
 ```
 
 ### Web Execution
 
 For web automation, you can specify the target environment:
 
-```bash
-EXECUTION_MODE=web
-BROWSER=chromium
-BROWSER_VERSION=latest
-OS=Windows
-OS_VERSION=11
+```properties
+execution.mode=web
+browser=chromium
+os=Windows
+os.version=11
 ```
 
 ### Mobile Execution
 
-For mobile automation, the framework automatically maps these settings to Appium capabilities:
+For mobile automation, the framework automatically maps these settings to Appium capabilities via `CapabilityBuilder`:
 
-```bash
-EXECUTION_MODE=mobile
-OS=Android
-OS_VERSION=Google Pixel 7
+```properties
+execution.mode=mobile
+os=Android
+os.version=13.0
+mobile.device.name=Google Pixel 7
 ```
 
 ---
@@ -52,35 +52,24 @@ OS_VERSION=Google Pixel 7
 
 ### BrowserStack
 
-When `CLOUD_PLATFORM=browserstack` is set, the framework uses the Playwright CDP (Chrome DevTools Protocol) endpoint for web tests and the BrowserStack Appium hub for mobile tests.
-
-**Specific capabilities included:**
-- `bstack:options` are automatically generated.
-- Project and Build names are automatically tagged with "Taflex Framework" and the current date.
+When `cloud.platform=browserstack` is set, the framework uses the `CapabilityBuilder` to generate `bstack:options`. It supports both Playwright (remote connection) and Appium.
 
 ### SauceLabs
 
-When `CLOUD_PLATFORM=saucelabs` is set, the framework connects to the SauceLabs US-West-1 data center.
-
-**Specific capabilities included:**
-- `sauce:options` are automatically generated.
-- Standard W3C capabilities are enforced for maximum compatibility.
+When `cloud.platform=saucelabs` is set, the framework generates `sauce:options` and configures the remote URL to point to the SauceLabs grid.
 
 ---
 
-## 💻 CLI Usage
+## 💻 Execution
 
-You can easily switch between local and cloud execution using environment variables in your command line:
+Simply run your standard Gradle test tasks. The framework detects the cloud configuration and establishes the remote connection automatically:
 
 ```bash
-# Run web tests locally
-npm run test:web
+# Run web tests on the configured cloud platform
+./gradlew webTest
 
-# Run web tests on BrowserStack
-CLOUD_PLATFORM=browserstack npm run test:web
-
-# Run mobile tests on SauceLabs
-CLOUD_PLATFORM=saucelabs EXECUTION_MODE=mobile npm run test:bdd
+# Run mobile tests on the configured cloud platform
+./gradlew mobileTest
 ```
 
 ## 🔍 Debugging in the Cloud
@@ -88,4 +77,4 @@ CLOUD_PLATFORM=saucelabs EXECUTION_MODE=mobile npm run test:bdd
 Once a test finishes, you can log in to your provider's dashboard to see:
 1. **Video Recording**: A full video of the test execution.
 2. **Metadata**: Detailed information about the browser, OS, and environment.
-3. **Logs**: Console logs and network traffic (HAR files).
+3. **Logs**: Appium logs, console logs, and network traffic.
