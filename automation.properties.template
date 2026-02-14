@@ -1,194 +1,184 @@
-# TAFLEX - Test Automation Framework Configuration
-# ================================================
-# Copy this file to automation.properties and customize for your environment.
-# automation.properties is gitignored and should NOT be committed to version control.
+# TAFLEX - Enterprise Test Automation Framework Configuration
+# ==============================================================================
+# This is a template configuration file.
+# 1. Copy this file to 'automation.properties' in the project root.
+# 2. Update the values to match your specific environment.
+# Note: 'automation.properties' is gitignored and should NOT be committed.
+# ==============================================================================
 
-# ================================================
-# Execution Configuration
-# ================================================
-# Mode: web | api | mobile
+# ==============================================================================
+# EXECUTION CONFIGURATION
+# ==============================================================================
+
+# Defines the primary automation strategy to use.
+# Expected values: web | api | mobile
+# Example: execution.mode=web
 execution.mode=web
 
-# Environment: dev | staging | prod
+# Logical name for the current environment. Useful for logging and conditional logic.
+# Expected values: dev | qa | staging | prod
+# Example: environment=staging
 environment=staging
 
-# ================================================
-# Web Configuration (Playwright)
-# ================================================
-# Browser: chromium | firefox | webkit
+# ==============================================================================
+# WEB CONFIGURATION (Playwright)
+# ==============================================================================
+
+# The browser engine to use for web tests.
+# Expected values: chromium | firefox | webkit
+# Example: web.browser=chromium
 web.browser=chromium
 
-# Run browser in headless mode
+# If true, runs tests without a visible browser window. Recommended for CI.
+# Expected values: true | false
+# Example: web.headless=true
 web.headless=false
 
-# Default timeout in seconds
+# Global timeout for page operations (navigation, waiting) in seconds.
+# Default: 30
 web.timeout=30
 
-# Base URL for web application
+# Base URL for your web application. navigateTo() uses this as a prefix if needed.
+# Example: web.base.url=https://www.example.com
 web.base.url=https://staging.example.com
 
-# Enable tracing (for debugging)
+# Generates a detailed trace file for each test. Can be opened with Playwright CLI.
+# Expected values: true | false
 web.tracing.enabled=false
 
-# Viewport size
+# Default browser viewport size.
 web.viewport.width=1920
 web.viewport.height=1080
 
-# ================================================
-# API Configuration (Apache HttpClient)
-# ================================================
-# Base URL for API
+# ==============================================================================
+# API CONFIGURATION (Apache HttpClient)
+# ==============================================================================
+
+# Root URL for all API requests. All endpoint locators will be appended to this.
+# Example: api.base.url=https://api.example.com/v1
 api.base.url=https://api.staging.example.com
 
-# Default timeout in seconds
+# HTTP connection and socket timeout in seconds.
+# Default: 30
 api.timeout=30
 
-# Default content type
+# Default 'Content-Type' header for outgoing requests.
+# Example: application/json | application/xml
 api.content.type=application/json
 
-# Authentication (if needed)
-# api.auth.type=basic
-# api.auth.username=your_username
-# api.auth.password=your_password
+# ==============================================================================
+# MOBILE CONFIGURATION (Appium)
+# ==============================================================================
 
-# Or Bearer token
-# api.auth.type=bearer
-# api.auth.token=your_token
-
-# ================================================
-# Mobile Configuration (Appium)
-# ================================================
-# Platform: android | ios
+# Target mobile operating system.
+# Expected values: android | ios
 mobile.platform=android
 
-# Auto-detect platform from connected devices (adb/idevice_id)
+# Attempts to detect the platform automatically based on connected devices.
+# If multiple devices are found, it falls back to 'mobile.platform'.
 mobile.platform.auto=true
 
-# Appium server URL
+# The Appium server endpoint.
+# Default: http://localhost:4723
 mobile.appium.url=http://localhost:4723
 
-# Auto-start local Appium server when not running
+# If true, the framework will try to start the Appium server automatically.
+# Requires 'appium' to be in your PATH.
 mobile.appium.auto.start=false
 
-# Appium start command and optional args
-mobile.appium.start.command=appium
-mobile.appium.start.args=
-
-# Wait time for Appium to become ready (seconds)
-mobile.appium.start.timeout.seconds=30
-
-# Status path used for health checks
-mobile.appium.status.path=/status
-
-# Device name (for device farm)
-mobile.device.name=Pixel5
-
-# App path (local file or cloud URL)
+# Full path to the mobile application binary.
+# Example: /Users/me/apps/my-app.apk | https://cloud.com/app.ipa
 mobile.app.path=/path/to/your/app.apk
 
-# ----------------
-# Android-specific (required when mobile.platform=android)
-# ----------------
+# Identifier for the mobile device or emulator.
+# Example: Pixel_6_API_33 | iPhone 14 Pro
+mobile.device.name=Pixel5
+
+# --- Android-specific ---
+# The package name and main activity of your app.
 mobile.app.package=com.example.app
 mobile.app.activity=com.example.app.MainActivity
 
-# ----------------
-# iOS-specific (required when mobile.platform=ios)
-# ----------------
+# --- iOS-specific ---
+# The Bundle Identifier of your app.
 mobile.app.bundleId=com.example.app
 
-# ================================================
-# Database Configuration
-# ================================================
-# Database URL
-# db.url=jdbc:postgresql://localhost:5432/testdb
-# db.url=jdbc:mysql://localhost:3306/testdb
+# ==============================================================================
+# DATABASE CONFIGURATION (HikariCP)
+# ==============================================================================
 
-# Database credentials
+# JDBC Connection URL.
+# Examples: 
+#   jdbc:postgresql://localhost:5432/testdb
+#   jdbc:mysql://localhost:3306/testdb
+db.url=
+
+# Database credentials.
 db.username=admin
-db.password=your_password
+db.password=password
 
-# Connection pool size
+# Maximum number of connections in the Hikari pool.
 db.pool.size=10
 
-# ================================================
-# Report Portal Configuration
-# ================================================
-# Enable Report Portal integration
-reportportal.enabled=false
+# ==============================================================================
+# CODE QUALITY & HYGIENE
+# ==============================================================================
 
-# Report Portal server URL
-reportportal.endpoint=http://localhost:8080
+# Strategy for externalizing locators.
+# Expected values: properties | json
+locator.strategy=properties
 
-# API Key (generate in Report Portal UI)
-reportportal.api.key=your_api_key_here
+# ==============================================================================
+# REPORTING & GOVERNANCE
+# ==============================================================================
 
-# Project name
-reportportal.project=test_automation
-
-# Launch name (test run identifier)
-reportportal.launch=TAFLEX_Test_Run
-
-# ================================================
-# Allure Configuration
-# ================================================
-# Enable Allure results generation
+# --- Allure ---
+# Enable Allure results generation (*.json files).
 allure.enabled=true
-
-# Results directory
 allure.results.directory=build/allure-results
 
-# ================================================
-# Test Data Configuration
-# ================================================
-# Path to test data files
-test.data.path=src/test/resources/data/
+# --- ReportPortal ---
+# Enable native ReportPortal integration.
+reportportal.enabled=false
+reportportal.endpoint=http://localhost:8080
+reportportal.api.key=your_api_key
+reportportal.project=test_automation
+reportportal.launch=TAFLEX_Main_Run
 
-# Path to locator files
-test.locators.path=src/test/resources/locators/
+# --- Xray (Jira) ---
+# Enable Xray Cloud API integration for traceability.
+# TAFLEX automatically exchanges the Client ID/Secret for a temporary JWT token.
+xray.enabled=false
+xray.client.id=your_client_id
+xray.client.secret=your_client_secret
 
-# ================================================
-# Parallel Execution Configuration
-# ================================================
-# Enable parallel execution
+# ==============================================================================
+# EXECUTION CONTROL
+# ==============================================================================
+
+# Enable parallel execution via TestNG.
 parallel.enabled=true
-
-# Number of threads
 parallel.threads=4
 
-# ================================================
-# Retry Configuration
-# ================================================
-# Enable retry for failed tests
+# Automatically retry failed tests.
 retry.enabled=true
-
-# Maximum retry attempts
 retry.max.attempts=2
 
-# ================================================
-# Logging Configuration
-# ================================================
-# Log level: DEBUG | INFO | WARN | ERROR
-log.level=INFO
-
-# Log to console
-log.console=true
-
-# Log to file
-log.file=true
-log.file.path=logs/test-automation.log
-
-# ================================================
-# Screenshot Configuration
-# ================================================
-# Capture screenshots on failure
+# Capture a screenshot automatically when a UI test fails.
+# Saved to the 'screenshots/' directory.
 screenshot.on.failure=true
 
-# Screenshot directory
-screenshot.dir=screenshots/
+# ==============================================================================
+# LOGGING
+# ==============================================================================
 
-# ================================================
-# Custom Properties (for your specific needs)
-# ================================================
-# Add any custom properties below
-# custom.property=value
+# Framework log level.
+# Expected values: TRACE | DEBUG | INFO | WARN | ERROR
+log.level=INFO
+
+# Output logs to the system console.
+log.console=true
+
+# Save logs to a physical file.
+log.file=true
+log.file.path=logs/test-automation.log
