@@ -23,7 +23,7 @@ public class DriverFactory {
     /**
      * Private constructor to prevent instantiation
      */
-    private DriverFactory() {}
+    private DriverFactory() { }
     
     /**
      * Get driver based on execution mode from automation.properties
@@ -65,7 +65,7 @@ public class DriverFactory {
                 break;
                 
             default:
-                throw new DriverException("Unknown execution mode: " + mode + 
+                throw new DriverException("Unknown execution mode: " + mode +
                     ". Valid modes are: web, api, mobile");
         }
         

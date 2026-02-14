@@ -1,15 +1,8 @@
 package io.github.vinipx.taflex.core.contracts;
 
-import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
-import au.com.dius.pact.consumer.model.MockProviderConfig;
-import au.com.dius.pact.core.model.RequestResponsePact;
-import au.com.dius.pact.consumer.ConsumerPactBuilder;
 import io.github.vinipx.taflex.core.config.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Manages Pact contract testing lifecycle.
@@ -18,7 +11,9 @@ import java.util.Map;
 public class PactManager {
     private static final Logger logger = LoggerFactory.getLogger(PactManager.class);
     private final boolean enabled;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private String consumer;
+    @SuppressWarnings("PMD.UnusedPrivateField")
     private String provider;
 
     public PactManager() {

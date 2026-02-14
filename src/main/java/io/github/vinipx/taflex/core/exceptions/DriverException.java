@@ -5,6 +5,8 @@ package io.github.vinipx.taflex.core.exceptions;
  */
 public class DriverException extends RuntimeException {
     
+    private static final long serialVersionUID = 1L;
+
     public DriverException(String message) {
         super(message);
     }

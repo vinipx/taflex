@@ -1,6 +1,8 @@
 plugins {
     id 'java'
     id 'idea'
+    id 'checkstyle'
+    id 'pmd'
 }
 
 group = 'io.github.vinipx'
@@ -10,6 +12,20 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+}
+
+checkstyle {
+    toolVersion = '10.12.5'
+    configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
+    ignoreFailures = true
+    maxWarnings = 100
+}
+
+pmd {
+    toolVersion = '7.0.0'
+    ruleSetFiles = files("${rootProject.projectDir}/config/pmd/pmd-ruleset.xml")
+    ignoreFailures = true
+    consoleOutput = true
 }
 
 repositories {
@@ -65,6 +81,7 @@ dependencies {
     
     // Assertions - test scope only
     testImplementation "org.assertj:assertj-core:$assertjVersion"
+    testImplementation "org.mockito:mockito-core:5.8.0"
     
     // Utilities
     implementation "commons-io:commons-io:$commonsIoVersion"
@@ -90,12 +107,16 @@ tasks.register('installPlaywright', JavaExec) {
     args 'install'
 }
 
-// Build verification task - compiles code without running tests
+// Build verification task - compiles code and runs static analysis without running tests
 tasks.register('verifyBuild') {
     group = 'build'
-    description = 'Verify build by compiling main and test sources without running tests'
+    description = 'Verify build by compiling sources and running static analysis'
     dependsOn classes
     dependsOn testClasses
+    dependsOn checkstyleMain
+    dependsOn checkstyleTest
+    dependsOn pmdMain
+    dependsOn pmdTest
 }
 
 // CI build task - runs compilation verification only

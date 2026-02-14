@@ -18,7 +18,7 @@ public class LocatorFactory {
     private static final Logger logger = LoggerFactory.getLogger(LocatorFactory.class);
     private static final Map<String, LocatorStrategy> strategyCache = new HashMap<>();
     
-    private LocatorFactory() {}
+    private LocatorFactory() { }
     
     public static LocatorStrategy getLocatorStrategy() {
         String type = ConfigManager.getProperty("locator.strategy", "properties");

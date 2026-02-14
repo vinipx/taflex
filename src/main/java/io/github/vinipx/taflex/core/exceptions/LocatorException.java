@@ -5,6 +5,8 @@ package io.github.vinipx.taflex.core.exceptions;
  */
 public class LocatorException extends RuntimeException {
     
+    private static final long serialVersionUID = 1L;
+
     public LocatorException(String message) {
         super(message);
     }

@@ -39,6 +39,8 @@ A production-ready, enterprise-grade unified test automation framework supportin
 - **Contract Testing**: Integrated support for **Pact** (Consumer-driven).
 - **Database Orchestration**: Connection pooling with HikariCP and simplified JDBC wrapper.
 - **Quality Gates**: Automatic retries for flaky tests and screenshots on failure.
+- **Code Hygiene**: Automated checks with **Checkstyle** and **PMD**.
+- **CI/CD Integration**: Out-of-the-box support for **GitHub Actions** and **GitLab CI**.
 - **Cloud Ready**: Built-in support for BrowserStack and SauceLabs.
 
 ## 🏗️ Architecture
@@ -173,6 +175,19 @@ taflex/
 ├── documentation/           # Docusaurus documentation site
 ├── setup.sh                 # Environment initialization
 └── automation.properties    # Central configuration
+```
+
+## 🛡️ Code Quality & CI
+
+TAFLEX maintains high standards through automated hygiene checks and robust CI integration:
+
+- **Checkstyle**: Enforces coding standards (naming, indentation, whitespace).
+- **PMD**: Detects code smells, dead code, and potential programming errors.
+- **CI/CD Ready**: Fully configured pipelines for **GitHub Actions** and **GitLab CI**.
+
+Run local verification:
+```bash
+./gradlew verifyBuild test
 ```
 
 ## 📊 Governance & Reporting

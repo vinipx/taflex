@@ -1,0 +1,57 @@
+image: amazoncorretto:21
+
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+
+stages:
+  - setup
+  - lint
+  - build
+  - test
+
+before_script:
+  - chmod +x gradlew
+  - cp automation.properties.template automation.properties
+
+cache:
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
+setup_verification:
+  stage: setup
+  script:
+    - ./gradlew --version
+    - ./setup.sh
+  artifacts:
+    paths:
+      - automation.properties
+
+code_hygiene:
+  stage: lint
+  script:
+    - ./gradlew checkstyleMain checkstyleTest pmdMain pmdTest
+  artifacts:
+    when: always
+    paths:
+      - build/reports/checkstyle/
+      - build/reports/pmd/
+    expire_in: 1 week
+
+compile:
+  stage: build
+  script:
+    - ./gradlew classes testClasses
+  artifacts:
+    paths:
+      - build/classes/
+
+unit_tests:
+  stage: test
+  script:
+    - ./gradlew test --tests io.github.vinipx.taflex.tests.unit.*
+  artifacts:
+    when: always
+    paths:
+      - build/reports/tests/
+    expire_in: 1 week

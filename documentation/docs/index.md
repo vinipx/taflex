@@ -29,6 +29,7 @@ TAFLEX is a **unified, enterprise-grade test automation framework** designed for
 | 🛡️ **Type-Safe Config** | Centralized configuration management via `automation.properties`. |
 | 🗄️ **Database Support** | Native support for PostgreSQL and MySQL via HikariCP connection pooling. |
 | 📊 **Enterprise Reporting** | Native integration with ReportPortal and Xray (Jira). |
+| 🛡️ **Code Quality** | Automated hygiene checks with Checkstyle and PMD. |
 
 ---
 

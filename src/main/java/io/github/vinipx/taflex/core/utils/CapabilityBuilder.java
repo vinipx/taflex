@@ -2,7 +2,6 @@ package io.github.vinipx.taflex.core.utils;
 
 import io.github.vinipx.taflex.core.config.ConfigManager;
 import org.openqa.selenium.MutableCapabilities;
-import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.util.HashMap;
 import java.util.Map;

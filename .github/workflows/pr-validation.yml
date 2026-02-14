@@ -80,6 +80,9 @@ jobs:
       - name: Compile test sources
         run: ./gradlew compileTestJava --no-daemon
 
+      - name: Run Code Hygiene (Lint)
+        run: ./gradlew checkstyleMain checkstyleTest pmdMain pmdTest --no-daemon
+
   pr-summary:
     name: PR Summary
     runs-on: ubuntu-latest

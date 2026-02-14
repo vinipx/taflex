@@ -1,6 +1,5 @@
 package io.github.vinipx.taflex.core.drivers.elements;
 
-import io.appium.java_client.AppiumDriver;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,12 +13,10 @@ public class MobileElement implements Element {
     
     private final WebElement element;
     private final String logicalName;
-    private final AppiumDriver driver;
     
-    public MobileElement(WebElement element, String logicalName, AppiumDriver driver) {
+    public MobileElement(WebElement element, String logicalName) {
         this.element = element;
         this.logicalName = logicalName;
-        this.driver = driver;
     }
     
     @Override

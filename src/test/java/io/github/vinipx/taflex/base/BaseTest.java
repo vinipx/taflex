@@ -12,9 +12,11 @@ import org.testng.annotations.*;
  * Base test class for all test automation.
  * Provides common setup, teardown, and utility methods.
  */
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
 public abstract class BaseTest {
     
     protected static final Logger logger = LoggerFactory.getLogger(BaseTest.class);
+    private static final String SEPARATOR = "========================================";
     
     protected AutomationDriver driver;
     protected String executionMode;
@@ -24,9 +26,9 @@ public abstract class BaseTest {
      */
     @BeforeSuite
     public void beforeSuite() {
-        logger.info("========================================");
+        logger.info(SEPARATOR);
         logger.info("Starting Test Suite");
-        logger.info("========================================");
+        logger.info(SEPARATOR);
         
         // Log configuration
         executionMode = ConfigManager.getExecutionMode();
@@ -89,9 +91,9 @@ public abstract class BaseTest {
      */
     @AfterSuite
     public void afterSuite() {
-        logger.info("========================================");
+        logger.info(SEPARATOR);
         logger.info("Test Suite Complete");
-        logger.info("========================================");
+        logger.info(SEPARATOR);
         
         // Clean up driver cache
         DriverFactory.clearCache();

@@ -26,6 +26,7 @@ const sidebars = {
         "guides/api-testing",
         "guides/pact-testing",
         "guides/reporting",
+        "guides/code-quality",
         "guides/database",
         "guides/qa-engineers",
         "guides/developers",

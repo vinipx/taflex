@@ -47,7 +47,6 @@ public class OrderApiTests extends BaseTest {
         
         // Note: In real tests, you'd create an order first, then delete it
         // This is a simplified example
-        String orderId = "test-order-123";
         
         // Execute DELETE request
         // This assumes the endpoint supports /orders/{id}

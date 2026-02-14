@@ -9,7 +9,9 @@ import org.testng.annotations.Test;
  */
 public class MobileNavigationTests extends BaseTest {
     
-    @Test(groups = {"smoke", "regression"}, description = "Verify bottom navigation is present")
+    private static final String REGRESSION = "regression";
+
+    @Test(groups = {"smoke", REGRESSION}, description = "Verify bottom navigation is present")
     public void shouldDisplayBottomNavigation() {
         // Navigate to home
         driver.click("mobile.nav.home");
@@ -21,7 +23,7 @@ public class MobileNavigationTests extends BaseTest {
             "Settings navigation should be visible");
     }
     
-    @Test(groups = {"regression"}, description = "Verify navigation to profile screen")
+    @Test(groups = {REGRESSION}, description = "Verify navigation to profile screen")
     public void shouldNavigateToProfileScreen() {
         // Click profile navigation
         driver.click("mobile.nav.profile");
@@ -31,7 +33,7 @@ public class MobileNavigationTests extends BaseTest {
             "Profile icon should be visible on profile screen");
     }
     
-    @Test(groups = {"regression"}, description = "Verify hamburger menu opens navigation drawer")
+    @Test(groups = {REGRESSION}, description = "Verify hamburger menu opens navigation drawer")
     public void shouldOpenNavigationDrawer() {
         // Click menu button
         driver.click("mobile.dashboard.menu.button");
@@ -44,7 +46,7 @@ public class MobileNavigationTests extends BaseTest {
             "Logout button should be visible in navigation drawer");
     }
     
-    @Test(groups = {"regression"}, description = "Verify logout functionality")
+    @Test(groups = {REGRESSION}, description = "Verify logout functionality")
     public void shouldLogoutSuccessfully() {
         // Open navigation drawer
         driver.click("mobile.dashboard.menu.button");

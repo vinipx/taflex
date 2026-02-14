@@ -168,7 +168,7 @@ public class MobileDriverStrategy implements AutomationDriver {
                 String.format("//*[@text='%s' or @content-desc='%s']", selector, selector)));
         }
         
-        return new MobileElement(nativeElement, logicalName, driver);
+        return new MobileElement(nativeElement, logicalName);
     }
     
     @Override
