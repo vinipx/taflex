@@ -1,99 +1,88 @@
 # API Testing Tutorial
 
-Learn how to master the **Dual API Strategy** in TAFLEX JS. Choose the right tool for the right job: Playwright for integrated flows or Axios for high-performance specialized tests.
+Learn how to master API automation in TAFLEX using the specialized **ApiDriverStrategy** based on Apache HttpClient.
 
 ---
 
-## 1. Hybrid Approach (Playwright)
+## 1. Creating Your First API Test
 
-**Use case:** Integrated tests where you need to share authentication with a browser or see API calls in a Trace Viewer.
+API tests in TAFLEX are built using TestNG and extend `BaseTest`. The framework handles configuration and driver lifecycle automatically.
 
-### Creating the Test
-Create a standard Playwright spec in `tests/api/`:
+### Step 1: Define Your Endpoint
+Add your endpoint to `src/test/resources/locators/api/endpoints.properties`:
+
+```properties
+users.get.all=/users
+user.details=/users/%s
+```
+
+### Step 2: Create the Test Class
+Create a new file `src/test/java/io/github/vinipx/taflex/tests/api/UserApiTests.java`:
 
 ```java
-import { test, expect } from '../fixtures.js';
+package io.github.vinipx.taflex.tests.api;
 
-test.describe('Hybrid API Strategy (Playwright)', () => {
-    // 1. Configure mode
-    test.use({ mode: 'api' });
+import io.github.vinipx.taflex.base.BaseTest;
+import io.github.vinipx.taflex.core.drivers.strategies.ApiDriverStrategy;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-    test('should validate user profile integration', ({ driver }) => {
-        // 2. Perform request
-        const response = driver.get('/users/1');
-        
-        // 3. Assert using Playwright matchers
-        expect(response.status()).toBe(200);
-        const user = await response.json();
-        expect(user.username).toBe('Bret');
-    });
-});
-```
+public class UserApiTests extends BaseTest {
 
-**How to run:**
-```bash
-npx playwright test tests/api/
+    @Test(groups = {"smoke"})
+    public void shouldFetchUserDetails() {
+        // 1. Cast the unified driver to API Strategy
+        ApiDriverStrategy apiDriver = (ApiDriverStrategy) driver;
+
+        // 2. Execute the request using a locator
+        ApiDriverStrategy.ApiResponse response = apiDriver.get("users.get.all");
+
+        // 3. Assert the results
+        Assert.assertEquals(response.getStatusCode(), 200);
+        Assert.assertNotNull(response.getBody());
+    }
+}
 ```
 
 ---
 
-## 2. Specialized Approach (Axios + Vitest)
+## 2. Handling Payloads (POST/PUT)
 
-**Use case:** Standalone API testing, contract validation, and extreme execution speed.
-
-### Creating the Test
-Create a file ending in `.axios.spec.js` in `tests/api/`. These tests use **Vitest** as the runner.
+For methods that require a body, you can pass a JSON string directly.
 
 ```java
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DriverFactory } from '../../src/core/drivers/driver.factory.js';
+@Test
+public void shouldCreateUser() {
+    ApiDriverStrategy apiDriver = (ApiDriverStrategy) driver;
 
-describe('Specialized API Strategy (Axios + Vitest)', () => {
-    let driver;
-
-    beforeAll(async () => {
-        // 1. Initialize driver with api mode
-        // Ensure API_PROVIDER=axios is set in .env
-        driver = DriverFactory.create('api'); 
-        driver.initialize({
-            apiBaseUrl: 'https://jsonplaceholder.typicode.com'
-        });
-    });
-
-    it('should validate user contract with high performance', async () => {
-        // 2. Perform request
-        const response = driver.get('/users/1');
-        
-        // 3. Standard Vitest assertions
-        expect(response.status()).toBe(200);
-        const user = await response.json();
-        expect(user.id).toBe(1);
-    });
-});
-```
-
-**How to run:**
-```bash
-# Set provider if not default in .env
-API_PROVIDER=axios npm run test:unit
+    String payload = "{\"name\": \"John Doe\", \"job\": \"Engineer\"}";
+    
+    ApiDriverStrategy.ApiResponse response = apiDriver.post("user.create.endpoint", payload);
+    
+    Assert.assertEquals(response.getStatusCode(), 201);
+}
 ```
 
 ---
 
-## 3. Which one should I choose?
+## 3. How to Run API Tests
 
-| Feature | Playwright Strategy | Axios Strategy |
-|---------|---------------------|----------------|
-| **Runner** | Playwright | Vitest |
-| **Speed** | Moderate | Fast (Blazing) |
-| **Trace Viewer** | Yes | No |
-| **Authentication Sharing** | Native with Browser | Manual |
-| **Watch Mode** | `npx playwright test --ui` | `npm run test:unit` (Auto-watch) |
+You can run your API tests using the dedicated Gradle task:
+
+```bash
+./gradlew apiTest
+```
+
+Or via TestNG groups:
+
+```bash
+./gradlew test -Dgroups=api
+```
 
 ---
 
 ## 4. Best Practices
 
-- **Shared Locators**: Use `src/resources/locators/api/common.json` to store endpoints for both strategies.
-- **Environment URLs**: Always rely on `API_BASE_URL` in your `.env`.
-- **Validation**: For both strategies, the `driver` wrapper provides consistent `status()`, `json()`, and `ok()` methods to keep your code portable.
+- **Externalize Everything**: Store all endpoints in `.properties` files.
+- **Data Driven**: Use TestNG DataProviders for testing the same endpoint with different payloads.
+- **Environment Aware**: Use `ConfigManager.getApiBaseUrl()` if you need to construct URLs dynamically, though the driver handles this automatically when using locators.

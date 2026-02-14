@@ -1,73 +1,76 @@
 # Web Testing Tutorial
 
-Learn how to write robust and maintainable Web tests using TAFLEX JS.
+Learn how to write robust and maintainable Web tests using TAFLEX and Playwright.
 
-## 1. Page Object Model (POM)
+## 1. Organizing Your Tests
 
-We recommend using the Page Object Model to encapsulate page-specific logic and locators. This makes tests readable and easy to maintain.
+TAFLEX uses a clean separation between test logic and locators.
 
-### Step 1: Create Locators
-Create a JSON file for your page in `src/resources/locators/web/search.json`:
+### Step 1: Externalize Locators
+Create a properties file for your page in `src/test/resources/locators/web/search.properties`:
 
-```json
-{
-  "search_input": "input[name='q']",
-  "search_button": "input[type='submit'] >> n=1"
+```properties
+# Search Page Elements
+search.input=input[name='q']
+search.button=input[type='submit']
+```
+
+### Step 2: Create the Test Class
+Create your test class in `src/test/java/io/github/vinipx/taflex/tests/web/SearchTests.java` extending `BaseTest`:
+
+```java
+package io.github.vinipx.taflex.tests.web;
+
+import io.github.vinipx.taflex.base.BaseTest;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+public class SearchTests extends BaseTest {
+
+    @Test(groups = {"smoke", "web"})
+    public void shouldSearchSuccessfully() {
+        // 1. Navigate (locator defined in global.properties)
+        driver.navigateTo("google.home.url");
+        
+        // 2. Interact using logical names
+        driver.type("search.input", "TAFLEX Framework");
+        driver.click("search.button");
+        
+        // 3. Verify visibility
+        Assert.assertTrue(driver.isVisible("search.results.container"));
+    }
 }
 ```
 
-### Step 2: Create Page Object
-Create a class to handle interactions in `tests/web/pages/search.page.js`:
+---
 
-```java
-export class SearchPage {
-    constructor(driver) {
-        this.driver = driver;
-    }
+## 2. Best Practices
 
-    async open() {
-        await this.driver.navigateTo('https://www.google.com');
-        // Load the page-specific locators
-        await this.driver.loadLocators('search');
-    }
+- **Logical Naming**: Always use logical names like `login.submit.button` instead of hardcoded selectors.
+- **BaseTest Lifecycle**: Always extend `BaseTest` to ensure the driver is properly initialized and terminated.
+- **Group Your Tests**: Use TestNG groups (`smoke`, `regression`, `web`) to allow flexible execution.
 
-    async searchFor(term) {
-        const input = await this.driver.findElement('search_input');
-        await input.fill(term);
-        await this.driver.page.keyboard.press('Enter');
-    }
-}
+---
+
+## 3. Running Web Tests
+
+Use the dedicated Gradle task to run web tests:
+
+```bash
+./gradlew webTest
 ```
 
-## 2. Writing the Test Spec
+To run in a specific browser or headless mode, update `automation.properties`:
 
-Use the `driver` fixture to inject the initialized strategy into your test.
-
-```java
-import { test, expect } from '../fixtures.js';
-import { SearchPage } from './pages/search.page.js';
-
-test.describe('Google Search', () => {
-    test('should find relevant results', ({ driver }) => {
-        const searchPage = new SearchPage(driver);
-        
-        await searchPage.open();
-        await searchPage.searchFor('Taflex JS');
-        
-        // Assertions using Playwright's expect
-        await expect(driver.page).toHaveTitle(/Taflex JS/);
-    });
-});
+```properties
+web.browser=chromium
+web.headless=true
 ```
 
-## 3. Best Practices
+---
 
-- **Load Locators Early**: Always call `driver.loadLocators('page_name')` before interacting with elements.
-- **Use Logical Names**: Refer to elements by their logical names (e.g., `login_button`) instead of hardcoded CSS/XPath.
-- **Leverage Fixtures**: Use the `driver` fixture to handle automatic browser lifecycle (startup/teardown).
+## 4. Automatic Features
 
-## Running on Cloud Grids
-
-You can run these same tests on **BrowserStack** or **SauceLabs** by simply updating your `.env` file. No code changes are required.
-
-Refer to the [Cloud Execution Tutorial](./cloud-execution.md) for detailed configuration steps.
+- **Screenshots**: TAFLEX automatically captures screenshots on failure in the `screenshots/` directory.
+- **Retries**: Flaky tests are automatically retried if enabled in `automation.properties`.
+- **Logs**: Detailed browser interactions are logged in `logs/test-automation.log`.

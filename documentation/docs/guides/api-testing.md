@@ -1,87 +1,75 @@
 # API Testing
 
-TAFLEX JS employs a **Dual API Strategy** that allows you to choose the best tool for your specific testing needs.
+TAFLEX provides a specialized API driver based on **Apache HttpClient** for high-performance API automation.
 
-| Strategy | Engine | Best For... |
-|----------|--------|-------------|
-| **Hybrid (E2E)** | Playwright | API calls within UI flows (setup/teardown), shared authentication with browser context, and integrated tracing. |
-| **Specialized (Logic)** | Axios + Vitest | High-volume contract testing, complex business logic validation, and standalone API suites requiring maximum execution speed. |
+## 1. Configuration
+
+Configure your API base URL and timeouts in `automation.properties`:
+
+```properties
+api.base.url=https://api.staging.example.com
+api.timeout=30
+api.content.type=application/json
+```
 
 ---
 
-## 1. Hybrid API Testing (Playwright)
+## 2. Writing an API Test
 
-This strategy uses Playwright's `APIRequestContext`.
-
-## Configuration
-
-Ensure `API_BASE_URL` is set in your `.env` file.
-
-## Writing an API Test
-
-Use the `test` fixture and set the `mode` to `api`.
+To write an API test, your test class should extend `BaseTest`. You can then cast the `driver` to `ApiDriverStrategy` to access API-specific methods.
 
 ```java
-import { test, expect } from '../fixtures.js';
+package io.github.vinipx.taflex.tests.api;
 
-test.describe('User API', () => {
-    test.use({ mode: 'api' });
+import io.github.vinipx.taflex.base.BaseTest;
+import io.github.vinipx.taflex.core.drivers.strategies.ApiDriverStrategy;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-    test('get user details', ({ driver }) => {
-        const response = driver.get('/users/1');
-        expect(response.ok()).toBeTruthy();
+public class UserApiTests extends BaseTest {
+    
+    @Test(groups = {"smoke", "api"})
+    public void shouldGetUsersSuccessfully() {
+        // Cast driver to API strategy
+        ApiDriverStrategy apiDriver = (ApiDriverStrategy) driver;
         
-        const user = await response.json();
-        expect(user.username).toBe('Bret');
-    });
-});
+        // Execute GET request using externalized locator for the endpoint
+        ApiDriverStrategy.ApiResponse response = apiDriver.get("users.endpoint");
+        
+        // Verify status code
+        Assert.assertEquals(response.getStatusCode(), 200, "GET /users should return 200 OK");
+        
+        // Verify response body
+        Assert.assertNotNull(response.getBody(), "Response body should not be null");
+    }
+}
 ```
 
-## Available Methods
+---
+
+## 3. Available Methods
 
 The API driver supports standard HTTP methods:
-- `driver.get(url, options)`
-- `driver.post(url, options)`
-- `driver.put(url, options)`
-- `driver.delete(url, options)`
 
-## 2. Specialized API Testing (Axios + Vitest)
+- `apiDriver.get(locator)`
+- `apiDriver.post(locator, payload)`
+- `apiDriver.put(locator, payload)`
+- `apiDriver.patch(locator, payload)`
+- `apiDriver.delete(locator)`
 
-For high-performance, pure API tests (without UI dependencies), TAFLEX JS supports a specialized strategy using **Axios** and **Vitest**. This is ideal for contract testing and logic validation due to its extreme execution speed and superior developer experience (watch mode).
+### ApiResponse Object
+Every API call returns an `ApiResponse` object with the following methods:
+- `getStatusCode()`: Returns the HTTP status code.
+- `getBody()`: Returns the response body as a String.
+- `getContentType()`: Returns the response content type.
 
-### Configuration
-Set the provider in your `.env`:
-```env
-API_PROVIDER=axios
-```
+---
 
-### Writing a Vitest API Test
-Create a file ending in `.axios.spec.js` in your `tests/api/` directory:
+## 4. Endpoint Externalization
 
-```java
-import { describe, it, expect, beforeAll } from 'vitest';
-import { DriverFactory } from '../../src/core/drivers/driver.factory.js';
+Endpoints should be stored in your locator properties files (e.g., `src/test/resources/locators/api/endpoints.properties`):
 
-describe('Specialized API', () => {
-    let driver;
-
-    beforeAll(async () => {
-        driver = DriverFactory.create('api'); 
-        driver.initialize({
-            apiBaseUrl: 'https://api.example.com'
-        });
-    });
-
-    it('should fetch data', async () => {
-        const response = driver.get('/endpoint');
-        expect(response.status()).toBe(200);
-        const data = await response.json();
-        expect(data.id).toBeDefined();
-    });
-});
-```
-
-### Running Specialized Tests
-```bash
-npm run test:unit
+```properties
+users.endpoint=/v1/users
+user.create.endpoint=/v1/users/create
 ```

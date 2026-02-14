@@ -5,85 +5,89 @@ title: Quick Start
 
 # Quick Start Guide
 
-Get up and running with TAFLEX JS in under 5 minutes.
+Get up and running with TAFLEX in under 5 minutes.
 
-## 1. Installation
+## 1. Prerequisites
 
-TAFLEX JS requires **Node.js 20** or higher. We provide an automated setup script that handles dependencies, browser installations, and initial configuration.
+TAFLEX requires:
+- **Java 21** or higher.
+- **Gradle 8.5** or higher (or use the included wrapper).
+- **Git** for version control.
+
+## 2. Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/vinipx/taflex-js.git
-cd taflex-js
+git clone https://github.com/vinipx/taflex.git
+cd taflex
 
 # Run the automated setup
 ./setup.sh
 ```
 
-The script will:
-- Install all NPM dependencies.
-- Install Playwright browsers and system dependencies.
-- Create an initial `.env` file from the example.
+The `setup.sh` script will:
+- Check your Java version (requires 21+).
+- Verify Gradle installation.
+- Create `automation.properties` from the template.
+- Resolve dependencies and compile the project.
 
-## 2. Configuration
+## 3. Configuration
 
-The `setup.sh` script automatically creates your `.env` file. If you are performing a manual installation, you will need to create it:
+Edit the `automation.properties` file in the root directory:
 
-```bash
-# Only if you didn't run setup.sh
-cp .env.example .env
-```
+```properties
+# Execution Mode: web | api | mobile
+execution.mode=web
 
-Now, edit the `.env` file to match your environment:
+# Web Settings
+web.browser=chromium
+web.headless=true
+web.base.url=https://www.google.com
 
-```env
-EXECUTION_MODE=web
-BROWSER=chromium
-HEADLESS=true
-BASE_URL=https://www.google.com
-API_BASE_URL=https://jsonplaceholder.typicode.com
+# API Settings
+api.base.url=https://jsonplaceholder.typicode.com
 
 # Reporting configuration
-REPORTERS=html,allure
-# REPORTERS=html,reportportal
+reportportal.enabled=false
+xray.enabled=false
 ```
 
-## 3. Running Your First Test
+## 4. Running Your First Test
 
-### Integration Tests (Web/API)
-Execute the Playwright test suite:
+### Run by Category
+TAFLEX provides Gradle tasks for different test types:
 
 ```bash
-# Run all tests
-npm test
+# Run Web tests
+./gradlew webTest
 
-# Run a specific spec
-npx playwright test tests/web/login.spec.js
+# Run API tests
+./gradlew apiTest
+
+# Run Mobile tests
+./gradlew mobileTest
 ```
 
-### Unit Tests
-Verify the framework core components:
+### Run by Groups
+You can also run tests using TestNG groups:
 
 ```bash
-npm run test:unit
+# Run smoke tests
+./gradlew test -Dgroups=smoke
+
+# Run regression tests
+./gradlew test -Dgroups=regression
 ```
 
-## 4. Visualizing Results
+## 5. Visualizing Results
 
-After running tests, you can view the native Playwright report:
+### Local Reports
+- **TestNG HTML Report**: Located at `build/reports/tests/index.html`.
+- **Screenshots**: Automatically captured on failure in the `screenshots/` directory.
+- **Logs**: Check `logs/test-automation.log` for detailed execution logs.
 
-```bash
-npx playwright show-report
-```
-
-For enterprise reporting, generate the Allure report:
-
-```bash
-npm install -g allure-commandline
-allure serve allure-results
-```
-
-To use **EPAM ReportPortal**, configure the `RP_*` variables in your `.env` and add `reportportal` to `REPORTERS`.
+### Enterprise Reporting
+To use **ReportPortal** or **Xray**, configure the respective properties in `automation.properties`.
 
 ---
 
@@ -91,4 +95,4 @@ To use **EPAM ReportPortal**, configure the `RP_*` variables in your `.env` and 
 
 - [Architecture Overview](../architecture/overview.md)
 - [How to manage Locators](../guides/locators.md)
-- [Database Integration](../guides/database.md)
+- [API Testing Guide](../guides/api-testing.md)

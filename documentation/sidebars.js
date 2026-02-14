@@ -22,9 +22,26 @@ const sidebars = {
       type: "category",
       label: "User Guides",
       items: [
+        "guides/locators",
+        "guides/api-testing",
+        "guides/pact-testing",
+        "guides/reporting",
+        "guides/database",
         "guides/qa-engineers",
         "guides/developers",
         "guides/managers",
+      ],
+    },
+    {
+      type: "category",
+      label: "Tutorials",
+      items: [
+        "tutorials/web-tests",
+        "tutorials/api-tests",
+        "tutorials/mobile-tests",
+        "tutorials/contract-testing",
+        "tutorials/cloud-execution",
+        "tutorials/bdd-tests",
       ],
     },
     {
