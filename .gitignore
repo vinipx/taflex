@@ -122,6 +122,11 @@ appium.log
 # AI
 AGENTS.md
 .codemie/
+.cursor/
+.claude/
+.gemini/
+.github/copilot/
+.aiexclude
 
 # Local environment
 .env
