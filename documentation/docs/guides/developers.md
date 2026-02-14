@@ -1,484 +1,73 @@
----
-sidebar_position: 2
-title: Guide for Developers
----
+# Developers Guide
 
-# Guide for Developers
-
-This guide is for software developers who want to extend TAFLEX, create new test cases, or integrate the framework into their development workflow.
-
-## Who This Guide Is For
-
-- 💻 Java developers writing test code
-- 🔧 SDETs (Software Development Engineers in Test)
-- 🧩 Architects designing test frameworks
-- ⚙️ Developers maintaining test infrastructure
-
-## Developer Responsibilities
-
-| Area | Description |
-|------|-------------|
-| **Write Test Code** | Implement test classes using the framework's APIs and patterns. |
-| **Extend Framework** | Add new driver strategies, utilities, and custom functionality. |
-| **Debug & Optimize** | Troubleshoot failures, improve performance, and fix issues. |
-| **Maintain Code** | Refactor, review code, and ensure code quality standards. |
-
-## Development Environment Setup
-
-### 1. IDE Configuration (IntelliJ IDEA)
-
-#### Import Project
-
-```bash
-# Clone repository
-git clone https://github.com/vinipx/taflex.git
-cd taflex
-
-# Open in IntelliJ
-idea .
-```
-
-#### Recommended Plugins
-
-- **Lombok** - For cleaner code
-- **Rainbow Brackets** - Better bracket visibility
-- **TestNG** - Test runner integration
-- **Material Theme UI** - Better UI theme
-
-### 2. Project Structure Deep Dive
-
-```
-taflex/
-├── src/
-│   ├── main/java/io/github/vinipx/          ← Framework Code
-│   │   ├── core/
-│   │   │   ├── drivers/          # Driver interfaces & implementations
-│   │   │   │   ├── strategies/   # PlaywrightDriverStrategy, ApiDriverStrategy, MobileDriverStrategy
-│   │   │   │   └── elements/     # Element, PlaywrightElement, ApiElement, MobileElement
-│   │   │   ├── locators/         # Locator strategies
-│   │   │   │   └── strategies/   # PropertiesLocatorStrategy
-│   │   │   ├── config/           # ConfigManager
-│   │   │   ├── data/             # TestDataProvider interface
-│   │   │   └── exceptions/       # DriverException, LocatorException
-│   │   └── database/             # DatabaseManager (HikariCP)
-│   │
-│   └── test/java/io/github/vinipx/           ← Test Code
-│       ├── base/                 # BaseTest
-│       ├── listeners/            # TestListener, RetryAnalyzer, AnnotationTransformer
-│       └── tests/                # Test implementations
-│           ├── web/              # LoginTests, DashboardTests
-│           ├── api/              # UserApiTests, OrderApiTests
-│           └── mobile/           # MobileLoginTests, MobileNavigationTests
-│
-├── src/test/resources/           ← Test Resources
-│   ├── locators/                 # .properties files
-│   │   ├── global.properties     # Common across all modes
-│   │   ├── web/common.properties # Web-specific locators
-│   │   ├── api/endpoints.properties  # API endpoints
-│   │   └── mobile/selectors.properties # Mobile selectors
-│   ├── testng/                   # Suite files (web, api, mobile, smoke, regression)
-│   └── data/                     # Test data files
-│
-└── documentation/               # Docusaurus documentation site
-```
-```
-
-## Writing Tests
-
-### Test Class Structure
-
-```java
-package io.github.vinipx.taflex.tests.web;
-
-import io.github.vinipx.taflex.base.BaseTest;
-import org.testng.annotations.Test;
-import static org.assertj.core.api.Assertions.*;
-
-/**
- * Login functionality tests.
- *
- * @author Your Name
- * @since 1.0.0
- */
-public class LoginTests extends BaseTest {
-
-    @Test(
-        groups = {"smoke", "regression"},
-        description = "Verify successful login with valid credentials",
-        priority = 1
-    )
-    public void shouldLoginSuccessfully() {
-        // Given
-        String username = "validuser";
-        String password = "validpass";
-
-        // When
-        driver.navigateTo("login.page.url");
-        driver.type("login.username.field", username);
-        driver.type("login.password.field", password);
-        driver.click("login.submit.button");
-
-        // Then
-        assertThat(driver.isVisible("dashboard.welcome.message"))
-            .as("User should be redirected to dashboard after login")
-            .isTrue();
-
-        assertThat(driver.getText("dashboard.user.name"))
-            .as("Dashboard should display username")
-            .contains(username);
-    }
-}
-```
-
-### Using Data Providers
-
-```java
-@DataProvider(name = "loginCredentials")
-public Object[][] loginCredentials() {
-    return new Object[][] {
-        {"validuser", "validpass", true},
-        {"invaliduser", "wrongpass", false},
-        {"lockeduser", "validpass", false}
-    };
-}
-
-@Test(dataProvider = "loginCredentials")
-public void shouldHandleLoginScenarios(
-        String username,
-        String password,
-        boolean shouldSucceed) {
-
-    driver.navigateTo("login.page.url");
-    driver.type("login.username.field", username);
-    driver.type("login.password.field", password);
-    driver.click("login.submit.button");
-
-    if (shouldSucceed) {
-        assertThat(driver.isVisible("dashboard.welcome.message")).isTrue();
-    } else {
-        assertThat(driver.isVisible("login.error.message")).isTrue();
-    }
-}
-```
-
-### Page Object Pattern (Optional)
-
-While TAFLEX supports externalized locators, you can also use Page Objects:
-
-```java
-public class LoginPage {
-    private final AutomationDriver driver;
-
-    public LoginPage(AutomationDriver driver) {
-        this.driver = driver;
-    }
-
-    public LoginPage navigate() {
-        driver.navigateTo("login.page.url");
-        return this;
-    }
-
-    public LoginPage enterCredentials(String username, String password) {
-        driver.type("login.username.field", username);
-        driver.type("login.password.field", password);
-        return this;
-    }
-
-    public DashboardPage clickLogin() {
-        driver.click("login.submit.button");
-        return new DashboardPage(driver);
-    }
-}
-
-// Usage in test
-@Test
-public void shouldLoginWithPageObject() {
-    DashboardPage dashboard = new LoginPage(driver)
-        .navigate()
-        .enterCredentials("user", "pass")
-        .clickLogin();
-
-    assertThat(dashboard.isLoaded()).isTrue();
-}
-```
+This guide is for developers who want to extend TAFLEX JS or integrate it into their CI/CD pipelines.
 
 ## Extending the Framework
 
-### Creating a Custom Driver Strategy
+### Adding a New Strategy
+To add support for a new platform, create a new class extending `AutomationDriver` in `src/core/drivers/strategies/`.
 
 ```java
-package io.github.vinipx.taflex.core.drivers.strategies;
+import { AutomationDriver } from '../automation.driver.js';
 
-import io.github.vinipx.taflex.core.drivers.AutomationDriver;
-import io.github.vinipx.taflex.core.drivers.elements.Element;
-
-/**
- * Custom driver for desktop application testing using WinAppDriver.
- */
-public class DesktopDriverStrategy implements AutomationDriver {
-
-    private WindowsDriver windowsDriver;
-    private LocatorStrategy locatorStrategy;
-
-    @Override
-    public void initialize() {
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability("app", ConfigManager.getProperty("desktop.app.path"));
-
-        windowsDriver = new WindowsDriver(
-            new URL(ConfigManager.getProperty("winappdriver.url")),
-            capabilities
-        );
-
-        locatorStrategy = LocatorFactory.getLocatorStrategy();
-    }
-
-    @Override
-    public void click(String logicalName) {
-        String selector = locatorStrategy.resolve(logicalName);
-        windowsDriver.findElement(By.name(selector)).click();
-    }
-
-    // ... implement other methods
+export class MyNewStrategy extends AutomationDriver {
+    // Implement abstract methods
 }
 ```
 
-Register in `DriverFactory`:
+Then, register it in `src/core/drivers/driver.factory.js`.
 
-```java
-public static AutomationDriver getDriver(String mode) {
-    switch (mode.toLowerCase()) {
-        case "web": return new PlaywrightDriverStrategy();
-        case "api": return new ApiDriverStrategy();
-        case "mobile": return new MobileDriverStrategy();
-        case "desktop": return new DesktopDriverStrategy(); // Add this
-        default: throw new DriverException("Unknown mode: " + mode);
-    }
-}
-```
+## BDD Integration (Gherkin)
 
-### Creating Custom Test Listeners
+TAFLEX JS uses `playwright-bdd` to bridge Gherkin and Playwright.
 
-```java
-package io.github.vinipx.taflex.listeners;
+### Generation Process
+When running BDD tests, the framework executes `npx bddgen`. This command:
+1. Scans `tests/bdd/features/*.feature`.
+2. Scans `tests/bdd/steps/*.js` and `tests/fixtures.js`.
+3. Generates executable Playwright spec files in the `.features-gen/` directory.
 
-import org.testng.ITestResult;
-import org.testng.TestListenerAdapter;
+The `test:bdd` script in `package.json` automates this process.
 
-/**
- * Custom listener that sends notifications to Slack.
- */
-public class SlackNotificationListener extends TestListenerAdapter {
+## Unit Testing
 
-    private SlackClient slackClient;
-
-    @Override
-    public void onTestFailure(ITestResult result) {
-        String message = String.format(
-            "Test Failed: %s.%s\nError: %s",
-            result.getTestClass().getRealClass().getSimpleName(),
-            result.getName(),
-            result.getThrowable().getMessage()
-        );
-
-        slackClient.sendMessage("#qa-alerts", message);
-    }
-}
-```
-
-Add to `testng.xml`:
-
-```xml
-<listeners>
-    <listener class-name="io.github.vinipx.taflex.listeners.SlackNotificationListener"/>
-</listeners>
-```
-
-## Working with the Database
-
-### Query Execution
-
-```java
-DatabaseManager db = DatabaseManager.getInstance();
-
-// Simple query
-List<Map<String, Object>> users = db.executeQuery(
-    "SELECT * FROM users WHERE status = ?",
-    "active"
-);
-
-// Transaction
-Boolean result = db.executeInTransaction(conn -> {
-    PreparedStatement stmt1 = conn.prepareStatement(
-        "UPDATE users SET last_login = NOW() WHERE id = ?"
-    );
-    stmt1.setInt(1, userId);
-    stmt1.executeUpdate();
-
-    PreparedStatement stmt2 = conn.prepareStatement(
-        "INSERT INTO audit_log (action, user_id) VALUES (?, ?)"
-    );
-    stmt2.setString(1, "LOGIN");
-    stmt2.setInt(2, userId);
-    stmt2.executeUpdate();
-
-    return true;
-});
-```
-
-### Test Data Setup/Teardown
-
-```java
-@BeforeMethod
-public void setUpTestData() {
-    DatabaseManager db = DatabaseManager.getInstance();
-
-    db.executeUpdate(
-        "INSERT INTO users (username, email, status) VALUES (?, ?, ?)",
-        "testuser", "test@example.com", "active"
-    );
-}
-
-@AfterMethod
-public void tearDownTestData() {
-    DatabaseManager db = DatabaseManager.getInstance();
-
-    db.executeUpdate(
-        "DELETE FROM users WHERE username = ?",
-        "testuser"
-    );
-}
-```
-
-## Debugging Tips
-
-### 1. Enable Debug Logging
-
-```properties
-log.level=DEBUG
-```
-
-### 2. Run Single Test with Debug
+Always add unit tests for core framework logic. We use **Vitest** for its speed and modern API.
 
 ```bash
-./gradlew test --tests LoginTests.shouldLoginSuccessfully --info
-```
-
-### 3. Use Breakpoints
-
-Set breakpoints in your IDE and run with debugger:
-
-```bash
-./gradlew test --tests LoginTests --debug-jvm
-```
-
-Then attach debugger on port 5005.
-
-### 4. View Playwright Trace
-
-```properties
-# Enable tracing in config
-web.tracing.enabled=true
-```
-
-After test failure, view trace:
-
-```bash
-npx playwright show-trace traces/trace.zip
-```
-
-### 5. Screenshot Debugging
-
-```java
-// Take screenshot at specific point
-driver.captureScreenshot("before-click");
-driver.click("button");
-driver.captureScreenshot("after-click");
+npm run test:unit
 ```
 
 ## CI/CD Integration
 
-### GitHub Actions
+TAFLEX JS is designed to run in headless environments. Ensure you pass the required environment variables.
 
-```yaml title=".github/workflows/test.yml"
-name: Run Tests
-
-on: [push, pull_request]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up JDK 21
-      uses: actions/setup-java@v3
-      with:
-        java-version: '21'
-        distribution: 'corretto'
-
-    - name: Setup Gradle
-      uses: gradle/gradle-build-action@v2
-
-    - name: Create config
-      run: cp automation.properties.template automation.properties
-
-    - name: Run tests
-      run: ./gradlew smokeTest
-
-    - name: Upload reports
-      uses: actions/upload-artifact@v3
-      if: always()
-      with:
-        name: test-reports
-        path: build/reports/
+### GitHub Actions Example
+```yaml
+- name: Run tests
+  run: npm test
+  env:
+    BASE_URL: ${{ secrets.BASE_URL }}
+    API_BASE_URL: ${{ secrets.API_BASE_URL }}
 ```
 
-## Common Development Patterns
+## Type Safety with Zod
 
-### Retry Logic
+If you add new configuration parameters, update the `ConfigSchema` in `src/config/config.manager.js`. This ensures that any missing or invalid configuration is caught immediately at runtime.
 
-```java
-@Test(retryAnalyzer = RetryAnalyzer.class)
-public void flakyTest() {
-    // Test that occasionally fails due to timing
-}
+## Code Hygiene & Formatting
+
+To maintain high code quality and consistency across the project, we use **ESLint** and **Prettier**.
+
+### Linting
+Checks for potential errors and adherence to coding standards:
+```bash
+npm run lint
 ```
 
-### Soft Assertions
-
-```java
-@Test
-public void validatePage() {
-    SoftAssertions softly = new SoftAssertions();
-
-    softly.assertThat(driver.isVisible("header")).isTrue();
-    softly.assertThat(driver.isVisible("footer")).isTrue();
-    softly.assertThat(driver.isVisible("sidebar")).isTrue();
-
-    softly.assertAll(); // Reports all failures at once
-}
+### Automatic Formatting
+Fixes formatting and simple linting issues automatically:
+```bash
+npm run lint:fix
 ```
 
-### Conditional Tests
-
-```java
-@Test
-public void mobileOnlyTest() {
-    assumeTrue(ConfigManager.getExecutionMode().equals("mobile"));
-
-    // Mobile-specific test logic
-}
-```
-
-## Resources
-
-- 📖 [Effective Java](https://www.oreilly.com/library/view/effective-java-3rd/9780134686097/)
-- 🧪 [TestNG Documentation](https://testng.org/doc/)
-- 🔧 [Git Best Practices](https://www.git-scm.com/doc)
-- 💻 [Java 21 Features](https://openjdk.org/projects/jdk/21/)
-
----
-
-**Pro Tip**: Always run the full test suite before committing changes. Use `./gradlew smokeTest` for quick validation and `./gradlew regressionTest` for comprehensive testing!
+All contributions must pass the linter before being merged into the main branch.

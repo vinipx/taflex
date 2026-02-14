@@ -4,31 +4,31 @@ sidebar_position: 1
 title: Introduction
 ---
 
-# TAFLEX
+# TAFLEX JS
 
 **Enterprise Test Automation Framework**
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/vinipx/taflex/actions)
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/vinipx/taflex/releases)
-[![License](https://img.shields.io/badge/license-Apache%202.0-orange.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Java](https://img.shields.io/badge/Java-21+-red.svg)](https://java.oracle.com)
+[![Build Status](https://github.com/vinipx/taflex-js/actions/workflows/js-ci.yml/badge.svg?branch=main)](https://github.com/vinipx/taflex-js/actions)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/vinipx/taflex-js/releases)
+[![License](https://img.shields.io/badge/license-MIT-orange.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org)
 
 ---
 
-## 🎯 What is TAFLEX?
+## 🎯 What is TAFLEX JS?
 
-TAFLEX is a **unified, enterprise-grade test automation framework** designed for testing Web, API, and Mobile applications using a single codebase. Built with modern Java 21+, it leverages the Strategy Pattern to provide runtime driver resolution, making it incredibly flexible and maintainable.
+TAFLEX JS is a **unified, enterprise-grade test automation framework** designed for testing Web, API, and Mobile applications using a single codebase. Migrated from the original Java-based architecture, it leverages modern Node.js (ESM), Playwright, and WebdriverIO to deliver fast, reliable, and maintainable automation.
 
 ### ✨ Key Highlights
 
 | Feature | Description |
 |---------|-------------|
-| 🚀 **Quick Setup** | Get started in minutes with automated setup scripts and comprehensive documentation. |
-| 🧩 **Strategy Pattern** | Runtime driver resolution allows switching between Web, API, and Mobile without code changes. |
-| 📄 **Externalized Locators** | All selectors stored in `.properties` files, completely decoupled from test code. |
-| ⚡ **Parallel Execution** | Built-in support for parallel test execution with TestNG. |
-| 🗄️ **Database Integration** | HikariCP connection pooling with JDBC wrapper for test data management. |
-| 📊 **Rich Reporting** | Native ReportPortal integration with detailed test analytics. |
+| 🚀 **Quick Setup** | Modern npm-based workflow with automated setup and comprehensive guides. |
+| 🧩 **Strategy Pattern** | Runtime driver resolution between platforms. Native BDD support via Gherkin. |
+| 📄 **Hierarchical Locators** | All selectors stored in JSON files with Page > Mode > Global inheritance model. |
+| 🛡️ **Type-Safe Config** | Environment variables are strictly validated at runtime using **Zod**. |
+| 🗄️ **Database Integration** | Native support for PostgreSQL and MySQL query orchestration. |
+| 📊 **Modern Reporting** | Integrated Allure reports and Playwright's native HTML reporter. |
 
 ---
 
@@ -39,57 +39,32 @@ Get up and running in 3 simple steps:
 ### 1. Clone and Setup
 
 ```bash
-git clone https://github.com/vinipx/taflex.git
-cd taflex
+# Clone the repository
+git clone https://github.com/vinipx/taflex-js.git
+cd taflex-js
+
+# Run the automated setup
 ./setup.sh
 ```
 
 ### 2. Configure Environment
 
+The `setup.sh` script creates a `.env` file for you. Simply update it with your settings:
+
 ```bash
-# Copy and customize configuration
-cp automation.properties.template automation.properties
-nano automation.properties
+# Update with your specific credentials
+nano .env
 ```
 
 ### 3. Run Your First Test
 
 ```bash
-# Run web tests
-./gradlew webTest
+# Run all tests
+npm test
 
-# Run API tests
-./gradlew apiTest
-
-# Run mobile tests
-./gradlew mobileTest
+# Run unit tests
+npm run test:unit
 ```
-
----
-
-## 📚 Documentation Structure
-
-### Getting Started
-Learn the basics and run your first test
-
-- [Quick Start Guide](getting-started/quickstart.md)
-
-### Architecture
-Understand the framework design
-
-- [Architecture Overview](architecture/overview.md)
-
-### User Guides
-Tailored guides for different roles
-
-- [QA Engineers](guides/qa-engineers.md)
-- [Developers](guides/developers.md)
-- [Managers](guides/managers.md)
-
-### API Reference
-Complete API documentation
-
-- [Core Interfaces](api/core-interfaces.md)
 
 ---
 
@@ -98,25 +73,25 @@ Complete API documentation
 ```mermaid
 flowchart TB
     subgraph "Test Layer"
-        T[Test Classes]
+        T[Test & BDD Specs]
     end
 
     subgraph "Framework Core"
         F[DriverFactory]
-        L[LocatorFactory]
+        L[LocatorManager]
         C[ConfigManager]
     end
 
     subgraph "Driver Strategies"
         W[Web Driver<br/>Playwright]
-        A[API Driver<br/>HttpClient]
-        M[Mobile Driver<br/>Appium]
+        A[API Driver<br/>Playwright / Axios]
+        M[Mobile Driver<br/>WDIO]
     end
 
     subgraph "External Resources"
-        P[.properties Files]
+        P[JSON Locators]
         D[Test Data]
-        R[ReportPortal]
+        R[Allure Reports]
     end
 
     T --> F
@@ -138,74 +113,46 @@ flowchart TB
 ### Web Test
 
 ```java
-@Test(groups = {"smoke"})
-public void shouldLoginSuccessfully() {
-    // Navigate using externalized locator
-    driver.navigateTo("login.page.url");
+import { test, expect } from '../fixtures.js';
 
-    // Use externalized selectors
-    driver.type("login.username.field", "testuser");
-    driver.type("login.password.field", "password123");
-    driver.click("login.submit.button");
+test('should login successfully', ({ driver }) => {
+    // Navigate using unified driver
+    driver.navigateTo('https://the-internet.herokuapp.com/login');
+    
+    // Load page-specific locators
+    driver.loadLocators('login');
 
-    // Verify
-    assertTrue(driver.isVisible("dashboard.welcome.message"));
-}
-```
+    // Use platform-agnostic element API
+    await (driver.findElement('username_field')).fill('tomsmith');
+    await (driver.findElement('password_field')).fill('SuperSecretPassword!');
+    await (driver.findElement('login_button')).click();
 
-### API Test
-
-```java
-@Test(groups = {"regression"})
-public void shouldCreateUser() {
-    ApiDriverStrategy api = (ApiDriverStrategy) driver;
-
-    String payload = """{"name": "Test User", "email": "test@example.com"}""";
-    ApiResponse response = api.post("user.create.endpoint", payload);
-
-    assertEquals(response.getStatusCode(), 201);
-}
+    // Fluent assertions
+    const flashMessage = driver.findElement('flash_message');
+    expect(await flashMessage.getText()).toContain('You logged into a secure area!');
+});
 ```
 
 ---
 
-## 🎯 Who Should Use TAFLEX?
+## 🎯 Who Should Use TAFLEX JS?
 
 | Role | Benefits |
 |------|----------|
-| **QA Engineers & Testers** | No coding required for basic tests · Externalized locators in plain text · Built-in retry and screenshot mechanisms · Rich reporting out of the box |
-| **Developers** | Clean, extensible architecture · Type-safe Java 21+ codebase · Easy to add new driver types · Full IDE support with IntelliJ |
-| **Managers** | Single framework for all test types · Reduced maintenance overhead · Comprehensive reporting dashboards · Clear ROI metrics |
-| **DevOps Engineers** | Easy CI/CD integration · Docker support · Parallel execution · Environment-based configuration |
-
----
-
-## 📊 Features Comparison
-
-| Feature | TAFLEX | Selenium | Cypress | Playwright |
-|---------|--------|----------|---------|------------|
-| **Unified Framework** | ✅ | ❌ | ❌ | ❌ |
-| **Web + API + Mobile** | ✅ | ❌ | ❌ | ❌ |
-| **Externalized Locators** | ✅ | Manual | ❌ | ❌ |
-| **Java 21+** | ✅ | 8+ | JS Only | ✅ |
-| **Strategy Pattern** | ✅ | ❌ | ❌ | ❌ |
-| **ReportPortal** | Native | Plugin | Plugin | Plugin |
-| **Parallel Execution** | ✅ | Limited | ✅ | ✅ |
+| **QA Engineers & Testers** | Low-code locator management · High-level unified API · Automatic retries & screenshots · Beautiful reports. |
+| **Developers** | Modern ESM codebase · Strategy pattern extensibility · Zod validation · Fast Vitest suite. |
+| **Managers** | Unified stack for Web/API/Mobile · Reduced tech debt · Detailed dashboards · High execution ROI. |
+| **DevOps Engineers** | Docker-ready · Seamless GitHub Actions integration · Parallel execution by default. |
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](contributing/guidelines.md) for details.
+We welcome contributions! Please see our [Contributing Guidelines](./contributing/guidelines.md) for details.
 
 ## 📄 License
 
-TAFLEX is licensed under the [Apache License 2.0](https://opensource.org/licenses/Apache-2.0).
-
-## 💬 Support
-
-- **GitHub Issues**: [Report an Issue](https://github.com/vinipx/taflex/issues)
-- **Email**: [automation-team@company.com](mailto:automation-team@company.com)
+TAFLEX JS is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
 ---
 

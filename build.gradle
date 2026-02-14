@@ -36,6 +36,8 @@ ext {
 dependencies {
     // TestNG - test scope only
     testImplementation "org.testng:testng:$testngVersion"
+    testImplementation "io.cucumber:cucumber-java:7.15.0"
+    testImplementation "io.cucumber:cucumber-testng:7.15.0"
     
     // Microsoft Playwright
     implementation "com.microsoft.playwright:playwright:$playwrightVersion"
@@ -67,6 +69,8 @@ dependencies {
     // Utilities
     implementation "commons-io:commons-io:$commonsIoVersion"
     implementation "org.apache.commons:commons-csv:$commonsCsvVersion"
+    testImplementation "au.com.dius.pact.consumer:testng:4.6.3"
+    implementation "org.apache.httpcomponents.client5:httpclient5:5.3"
     
     // Database Drivers
     runtimeOnly 'org.postgresql:postgresql:42.7.1'
