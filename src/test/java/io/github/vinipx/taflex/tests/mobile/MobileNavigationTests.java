@@ -1,6 +1,6 @@
-package io.github.vinipx.taflex.taflex.tests.mobile;
+package io.github.vinipx.taflex.tests.mobile;
 
-import io.github.vinipx.taflex.taflex.base.BaseTest;
+import io.github.vinipx.taflex.base.BaseTest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

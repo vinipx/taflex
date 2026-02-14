@@ -69,7 +69,7 @@ dependencies {
     // Utilities
     implementation "commons-io:commons-io:$commonsIoVersion"
     implementation "org.apache.commons:commons-csv:$commonsCsvVersion"
-    testImplementation "au.com.dius.pact.consumer:testng:4.6.3"
+    implementation "au.com.dius.pact:consumer:4.6.3"
     implementation "org.apache.httpcomponents.client5:httpclient5:5.3"
     
     // Database Drivers
@@ -141,7 +141,7 @@ compileTestJava {
 sourceSets {
     unitTest {
         java {
-            srcDirs = ['src/test/java/io/github/vinipx/tests/unit']
+            srcDirs = ['src/test/java/io/github/vinipx/taflex/tests/unit']
         }
         resources {
             srcDirs = ['src/test/resources']

@@ -1,4 +1,4 @@
-package io.github.vinipx.taflex.taflex.listeners;
+package io.github.vinipx.taflex.listeners;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

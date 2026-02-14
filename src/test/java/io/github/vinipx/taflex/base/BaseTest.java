@@ -1,8 +1,8 @@
-package io.github.vinipx.taflex.taflex.base;
+package io.github.vinipx.taflex.base;
 
-import io.github.vinipx.taflex.taflex.core.config.ConfigManager;
-import io.github.vinipx.taflex.taflex.core.drivers.AutomationDriver;
-import io.github.vinipx.taflex.taflex.core.drivers.DriverFactory;
+import io.github.vinipx.taflex.core.config.ConfigManager;
+import io.github.vinipx.taflex.core.drivers.AutomationDriver;
+import io.github.vinipx.taflex.core.drivers.DriverFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.ITestResult;

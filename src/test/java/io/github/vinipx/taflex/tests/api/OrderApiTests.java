@@ -1,7 +1,7 @@
-package io.github.vinipx.taflex.tafledx.tests.api;
+package io.github.vinipx.taflex.tests.api;
 
-import io.github.vinipx.taflex.taflex.base.BaseTest;
-import io.github.vinipx.taflex.taflex.core.drivers.strategies.ApiDriverStrategy;
+import io.github.vinipx.taflex.base.BaseTest;
+import io.github.vinipx.taflex.core.drivers.strategies.ApiDriverStrategy;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

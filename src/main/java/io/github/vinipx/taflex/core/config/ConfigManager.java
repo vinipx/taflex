@@ -27,12 +27,12 @@ public class ConfigManager {
     
     private ConfigManager() {
         loadProperties();
-        validateConfig();
     }
     
     public static synchronized ConfigManager getInstance() {
         if (instance == null) {
             instance = new ConfigManager();
+            instance.validateConfig();
         }
         return instance;
     }

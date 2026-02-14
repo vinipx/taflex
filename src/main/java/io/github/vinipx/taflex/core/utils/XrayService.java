@@ -30,13 +30,13 @@ public class XrayService {
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost request = new HttpPost(baseUrl + "/authenticate");
-            String json = String.format("{"client_id":"","client_secret":""}", clientId, clientSecret);
+            String json = String.format("{\"client_id\":\"%s\",\"client_secret\":\"%s\"}", clientId, clientSecret);
             request.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
 
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 if (response.getCode() == 200) {
                     // Simple token extraction (should use a proper JSON parser in production)
-                    this.token = new java.util.Scanner(response.getEntity().getContent()).useDelimiter("\A").next().replace(""", "");
+                    this.token = new java.util.Scanner(response.getEntity().getContent()).useDelimiter("\\A").next().replace("\"", "");
                     logger.info("Authenticated with Xray successfully");
                 }
             }

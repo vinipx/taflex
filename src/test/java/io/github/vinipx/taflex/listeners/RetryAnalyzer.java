@@ -1,6 +1,6 @@
-package io.github.vinipx.taflex.taflex.listeners;
+package io.github.vinipx.taflex.listeners;
 
-import io.github.vinipx.taflex.taflex.core.config.ConfigManager;
+import io.github.vinipx.taflex.core.config.ConfigManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.IRetryAnalyzer;
