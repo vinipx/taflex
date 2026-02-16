@@ -203,6 +203,51 @@ function FeaturesSection() {
   );
 }
 
+function AiSection() {
+  return (
+    <section className={styles.aiSection}>
+      <div className="container">
+        <div className={styles.aiWrapper}>
+          <div className={styles.aiContent}>
+            <div className={styles.aiBadge}>AI-Fluent Framework</div>
+            <h2>AI-Ready with MCP Support</h2>
+            <p>
+              TAFLEX is fully integrated with the <strong>Model Context Protocol (MCP)</strong>. 
+              This turns your test automation framework into an AI-fluent ecosystem, 
+              allowing LLMs to understand your test suite, inspect locators, and execute 
+              tests directly from your AI assistant.
+            </p>
+            <ul className={styles.aiList}>
+              <li>
+                <strong>Contextual Awareness:</strong> AI assistants can "read" your 
+                locators and configuration.
+              </li>
+              <li>
+                <strong>Autonomous Execution:</strong> Trigger TestNG suites via 
+                natural language commands.
+              </li>
+              <li>
+                <strong>Intelligent Debugging:</strong> Let AI analyze your framework 
+                state to troubleshoot failures.
+              </li>
+            </ul>
+            <div className={styles.aiCta}>
+              <Link className={styles.aiButton} to="/docs/guides/mcp-support">
+                Learn about MCP Support →
+              </Link>
+            </div>
+          </div>
+          <div className={styles.aiVisual}>
+            <div className={styles.mcpLogo}>
+              <span className={styles.mcpText}>MCP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function TechStackSection() {
   return (
     <section className={styles.techStack}>
@@ -268,6 +313,7 @@ export default function Home() {
         <CapabilitiesSection />
         <ArchitectureSection />
         <FeaturesSection />
+        <AiSection />
         <TechStackSection />
         <QuickStartSection />
       </main>
