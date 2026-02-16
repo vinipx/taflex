@@ -23,6 +23,7 @@ const sidebars = {
       type: "category",
       label: "Core Guides",
       items: [
+        "guides/mcp-support",
         "guides/reporting",
         "guides/code-quality",
         "guides/pact-testing",

@@ -45,4 +45,11 @@ public interface LocatorStrategy {
      * @return A string identifier (e.g., "properties", "json").
      */
     String getSourceType();
+
+    /**
+     * Retrieves all locators currently loaded in this strategy.
+     *
+     * @return A map of logical names to their resolved selectors or paths.
+     */
+    java.util.Map<String, String> getAllLocators();
 }

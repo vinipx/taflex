@@ -134,6 +134,14 @@ tasks.register('ciBuild') {
     dependsOn verifyBuild
 }
 
+tasks.register('runMcp', JavaExec) {
+    group = 'mcp'
+    description = 'Start the TAFLEX MCP Server'
+    classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
+    mainClass = 'io.github.vinipx.taflex.mcp.TaflexMcpServer'
+    standardInput = System.in
+}
+
 tasks.register('webTest', Test) {
     group = 'verification'
     description = 'Run Web tests'

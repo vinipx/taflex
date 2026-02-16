@@ -119,4 +119,9 @@ public class JsonLocatorStrategy implements LocatorStrategy {
     public String getSourceType() {
         return "json";
     }
+
+    @Override
+    public Map<String, String> getAllLocators() {
+        return new HashMap<>(locatorCache);
+    }
 }

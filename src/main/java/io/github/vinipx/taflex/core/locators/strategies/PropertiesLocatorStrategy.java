@@ -162,6 +162,7 @@ public class PropertiesLocatorStrategy implements LocatorStrategy {
      *
      * @return A map of all logical names to selectors.
      */
+    @Override
     public Map<String, String> getAllLocators() {
         return new HashMap<>(locatorCache);
     }

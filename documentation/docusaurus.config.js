@@ -129,6 +129,7 @@ const config = {
             label: "Core Guides",
             position: "left",
             items: [
+              { to: "/docs/guides/mcp-support", label: "MCP Support" },
               { to: "/docs/guides/reporting", label: "Reporting" },
               { to: "/docs/guides/code-quality", label: "Code Quality" },
               { to: "/docs/guides/pact-testing", label: "Pact Testing" },
