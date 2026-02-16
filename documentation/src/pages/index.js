@@ -85,16 +85,16 @@ const coreFeatures = [
       'Built-in parallel test execution with TestNG thread management for maximum throughput on CI/CD pipelines and local development.',
   },
   {
+    icon: '🛡️',
+    title: 'Code Hygiene & Quality',
+    description:
+      'Strict static analysis with Checkstyle and PMD enforced at the build level. Maintains high standards for enterprise-grade Java automation.',
+  },
+  {
     icon: '📊',
     title: 'Rich Reporting',
     description:
       'Native ReportPortal integration with detailed test analytics, dashboards, and failure analysis for enterprise visibility.',
-  },
-  {
-    icon: '🔧',
-    title: 'Gradle Build System',
-    description:
-      'Modern Gradle build with dependency management, custom tasks, and seamless IDE integration for a productive developer experience.',
   },
   {
     icon: '🚀',
@@ -108,9 +108,9 @@ const techStack = [
   { name: 'Java 21+', desc: 'Latest LTS' },
   { name: 'Playwright', desc: 'Web' },
   { name: 'Appium', desc: 'Mobile' },
+  { name: 'Checkstyle/PMD', desc: 'Linting' },
   { name: 'TestNG', desc: 'Test Runner' },
   { name: 'Gradle', desc: 'Build System' },
-  { name: 'HikariCP', desc: 'DB Pool' },
   { name: 'ReportPortal', desc: 'Reporting' },
   { name: 'Docker', desc: 'Containers' },
 ];

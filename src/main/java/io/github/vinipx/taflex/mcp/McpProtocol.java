@@ -1,7 +1,6 @@
 package io.github.vinipx.taflex.mcp;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
@@ -27,7 +26,8 @@ public class McpProtocol {
         public Object result;
         public Error error;
 
-        public Response() {}
+        public Response() { }
+
         public Response(Object id, Object result) {
             this.id = id;
             this.result = result;
@@ -39,7 +39,8 @@ public class McpProtocol {
         public String message;
         public Object data;
 
-        public Error() {}
+        public Error() { }
+
         public Error(int code, String message) {
             this.code = code;
             this.message = message;
@@ -52,13 +53,14 @@ public class McpProtocol {
         public Map<String, Object> params;
     }
 
-    public static class Tool {
+    public static class McpTool {
         public String name;
         public String description;
         public JsonNode inputSchema;
 
-        public Tool() {}
-        public Tool(String name, String description, JsonNode inputSchema) {
+        public McpTool() { }
+
+        public McpTool(String name, String description, JsonNode inputSchema) {
             this.name = name;
             this.description = description;
             this.inputSchema = inputSchema;
@@ -66,9 +68,9 @@ public class McpProtocol {
     }
 
     public static class ToolListResponse {
-        public List<Tool> tools;
+        public List<McpTool> tools;
 
-        public ToolListResponse(List<Tool> tools) {
+        public ToolListResponse(List<McpTool> tools) {
             this.tools = tools;
         }
     }
@@ -87,7 +89,8 @@ public class McpProtocol {
         public String type = "text";
         public String text;
 
-        public Content() {}
+        public Content() { }
+
         public Content(String text) {
             this.text = text;
         }
